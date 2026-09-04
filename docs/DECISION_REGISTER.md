@@ -1341,38 +1341,41 @@ Locked; the corpus manifest will record boundary-token inclusion per article.
 
 ---
 
-## D-054 — Article-level sampling and reproducibility manifest
+## D-054 — Article-boundary reconstruction and sampling manifest
 
 **Decision**  
-How to select the fixed 20M-token model-training corpus.
+How to identify article units before selecting the fixed 20M-token model-training corpus.
 
-**Selected choice**  
-Reconstruct WikiText articles from level-1 heading rows matching `= Title =`. Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of training article indices, encode whole articles, and append a boundary token. Add article sequences in that order until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+**Provisional design**  
+Prefer whole-article sampling: immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole units, and append a boundary token. Add units in that order until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
 
 Save a manifest with the dataset fingerprint, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
 
-**Rationale**  
-Article-level sampling preserves local coherence, avoids reliance on mutable global RNG state, and makes the exact corpus independently reconstructable.
+**Observed blocker**  
+The initial `= Title =` reconstruction produced 29,433 training units and 59 validation units, while the published WikiText-103 statistics report 28,475 and 60. The opposite-signed discrepancies may have separate causes. Until raw-versus-normalized heading detection and the anomalous units are inspected, these units must be called heading-delimited segments rather than articles.
 
-**Alternatives considered**
-- shuffle dataset rows or paragraphs
-- sample individual tokens
-- rely on RNG state initialized at notebook start
-- omit the ordered selection manifest
+**Rationale**  
+Whole-article sampling can preserve local coherence only if the boundaries are trustworthy. The exact deterministic sampling and manifest design remains appropriate after the unit definition is reconciled.
+
+**Alternatives under investigation**
+- accept source heading-delimited segments and weaken the continuity claim
+- require blank-row context around a level-1 heading
+- repair a demonstrably malformed or missing validation boundary
+- adopt another deterministic boundary rule supported by the diagnostic evidence
 
 **Presentation relevance**  
-Provides a clear provenance story for the controlled training corpus.
+Provides a transparent example of an audit changing an experimental assumption before model training.
 
 **Status / evidence**  
-Locked as a specification; article reconstruction has synthetic tests, and corpus construction follows tokenizer training.
+Reopened on 2026-09-04. Tokenizer training and corpus sampling are paused. Notebook diagnostics compare raw and normalized matches, list validation titles, and inspect the shortest training segments.
 
 ---
 
 # Current project state
 
-**Notebook 01, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
+**Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-The data audit, normalization policy, article reconstruction, and exact sampling specification are published on `main`. Tokenizer training and 20M-token corpus construction have not started.
+The data audit and normalization policy are published on `main`. The initial reconstruction count disagrees with published WikiText-103 article counts, so D-054 is reopened. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
