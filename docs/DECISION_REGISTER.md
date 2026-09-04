@@ -142,24 +142,29 @@ Locked at target-design level.
 ## D-006 — Source dataset
 
 **Decision**  
-Choose a meaningful, general-purpose text corpus.
+Choose and freeze a meaningful, general-purpose text corpus.
 
 **Selected choice**  
-**WikiText-103**
+Hugging Face dataset `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`, pinned to Hub commit:
+
+`b08601e04326c79dfdd32d625aee71d232d685c3`
 
 **Rationale**  
-Real Wikipedia prose is more linguistically complex and presentation-relevant than simplified synthetic datasets such as TinyStories.
+Real Wikipedia prose is more linguistically complex and presentation-relevant than simplified synthetic datasets such as TinyStories. Pinning the immutable Hub commit prevents later upstream changes from silently changing the corpus or invalidating verified row and article counts.
+
+The guarded private `_fingerprint` values are retained as local sanity diagnostics, not as upstream version identifiers.
 
 **Alternatives considered**
+- load the moving Hub `main` revision
+- identify the corpus only by a local `datasets` fingerprint
 - TinyStories
-- other general corpora
-- domain-specific corpora
+- other general or domain-specific corpora
 
 **Presentation relevance**  
-Explain why realistic text makes the scaling experiment harder but more meaningful.
+Explain why realistic text makes the scaling experiment harder but more meaningful, and distinguish immutable upstream provenance from local cache-derived diagnostics.
 
 **Status / evidence**  
-Locked.
+Locked. The pinned revision reproduces 1,801,350 train rows, 3,760 validation rows, 4,358 test rows, 28,472 structurally reconstructed training documents, and 60 validation documents.
 
 ---
 
@@ -1349,31 +1354,28 @@ Locked; the corpus manifest will record boundary-token inclusion per article.
 **Decision**  
 How to identify article units before selecting the fixed 20M-token model-training corpus.
 
-**Provisional design**  
+**Selected choice**  
 Detect level-1 headings from raw rows before normalization. Treat a raw level-1 heading as an article start only when its immediately preceding and following raw rows are blank. Store normalized text, and derive the article record's title by normalizing the raw heading's inner title.
 
-After the boundary rule is verified, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole articles, and append a boundary token. Add articles until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+For the pinned WikiText revision, hard-assert exactly 28,472 training documents and 60 validation documents. The original WikiText summary reports 28,475 training articles, but the released corpus and independent downstream work reproducibly report 28,472 training documents.
 
-Save a manifest with the dataset fingerprint, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
+Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole articles, and append a boundary token. Add articles until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
 
-**Observed evidence**  
-The shape-only raw scan found 29,444 training candidates and 60 validation candidates. Ordinary prose normalization destroyed the heading shape of 11 training titles and one validation title, producing the earlier 29,433/59 reconstruction. The shortest extra training segments are table and equation rows such as `Draw; L`, `Win; D`, and `1, θ`, confirming that shape alone creates false boundaries.
+Save a manifest with the Hub revision, guarded local fingerprints, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
 
-The full v6 Colab run found 28,472 blank-padded training articles and all 60 validation articles, with zero normalization-induced heading changes. The shortest reconstructed training units are credible articles, confirming that blank padding removed the table/equation fragments. Three published training articles remain to be identified among the 972 rejected raw candidates.
+**Evidence**  
+Shape-only raw matching found 29,444 training candidates and 60 validation candidates. Prose normalization previously destroyed the framing of 11 training titles and one validation title. Structure-aware normalization reduced classification changes to zero.
+
+Blank padding removed 969 internal table/equation fragments and produced 28,472 credible training documents plus all 60 validation documents. Of 972 rejected training candidates, 967 had no blank neighbors. The remaining five one-sided candidates were audited as bibliography entries, table fragments, or citation metadata; relaxing the rule would reintroduce false boundaries.
 
 **Rationale**  
-Whole-article sampling preserves local coherence only if the boundaries are trustworthy. Raw structural detection prevents normalization from changing boundaries, while blank padding distinguishes real titles from consecutive table or equation rows.
-
-**Fallback if counts do not match**
-- inspect the remaining blank-padded exceptions
-- require that the next nonblank row is prose rather than another equals-shaped row
-- adopt another deterministic refinement supported by the diagnostic evidence
+Raw structural detection prevents normalization from changing boundaries. Blank padding preserves genuine articles without promoting equals-shaped table, equation, or reference rows. The strict rule is more defensible than heuristic exceptions, and its counts match the released corpus used by multiple downstream studies.
 
 **Presentation relevance**  
-Provides a transparent example of an audit changing an experimental assumption before model training.
+Provides a concise three-cause audit story: normalization-damaged headings, shape-only false positives, and a published-summary versus released-corpus count discrepancy.
 
 **Status / evidence**  
-Reopened and provisional. Tokenizer training and corpus sampling remain paused. The v7 diagnostic groups all rejected candidates by blank-neighbor pattern and displays one-sided candidates with full-row prose/level-2 classification. Relock only after a deterministic fallback recovers exactly three real articles without reintroducing false boundaries, then add hard 28,475/60 assertions.
+Locked. Hard assertions are tied to the immutable Hub revision. Tokenizer training and corpus sampling may proceed.
 
 ---
 
@@ -1381,7 +1383,7 @@ Reopened and provisional. Tokenizer training and corpus sampling remain paused. 
 
 **Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-The initial audit is published on `main`. D-051 is relocked after full-data validation; D-054 remains provisional while the three unpadded training articles are identified. Tokenizer training and 20M-token corpus construction have not started.
+The initial audit is published on `main`. D-006, D-051, and D-054 are locked with immutable upstream provenance, full-data normalization evidence, and hard 28,472/60 article-count assertions. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
