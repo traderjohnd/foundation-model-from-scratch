@@ -457,7 +457,7 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 preprocessing is published on `main`; structure-aware normalization and article reconstruction are being validated in draft PR #3.**
+**Notebook 01 preprocessing is published on `main`; the final three unpadded training articles are being diagnosed in draft PR #3.**
 
 Verified:
 1. WikiText-103 official row counts and split fingerprints
@@ -467,15 +467,15 @@ Verified:
 5. the shortest extra training segments are internal table/equation rows, not articles
 6. the synthetic reconstruction uses the real `= = Internal Section = =` form
 
-Provisional changes:
-- D-051: parse headings before normalization, normalize only the title interior, preserve framing, and normalize numeric en-dash ranges
-- D-054: detect article starts on raw level-1 headings with blank rows immediately before and after
-- 17 normalization and synthetic tests pass locally
+Current decisions:
+- D-051 is relocked: 17 tests pass and the full run reported zero heading-level changes
+- raw blank-padded detection reconstructs all 60 validation articles and 28,472 credible training articles
+- D-054 remains provisional while the three unpadded training articles are isolated
 - tokenizer training and 20M-token corpus construction remain paused
 
 The tokenizer will still train on the entire normalized official training split only. The deterministic sampling and manifest design remains provisional until the article counts are proven.
 
 ## Next implementation step
-Run the v6 notebook in Colab. Confirm that raw blank-padded boundaries produce exactly 28,475 training articles and 60 validation articles, and that normalization causes zero heading-level changes. If both conditions hold, add hard assertions and relock D-051 and D-054; otherwise inspect the remaining exceptions before refining the rule.
+Run the v7 notebook in Colab. Review the blank-neighbor summary and the likely-real unpadded candidates. Use that evidence to define one deterministic fallback, confirm exactly 28,475/60, add hard assertions, and relock D-054.
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.
