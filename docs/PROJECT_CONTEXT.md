@@ -457,30 +457,32 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 — Data & Tokenization, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
+**Notebook 01 data audit and article reconstruction are complete in draft PR #3.**
 
-Published in the current checkpoint:
-1. load and verify WikiText-103 official splits
-2. audit WikiText tokenization artifacts without using test text
-3. define one tested normalization function for train, validation, and later test
-4. reconstruct article units from level-1 headings with fail-fast preamble validation
-5. lock tokenizer-corpus and exact 20M-token article-sampling specifications
+Locked evidence:
+1. dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
+2. immutable Hub revision: `b08601e04326c79dfdd32d625aee71d232d685c3`
+3. official rows: 1,801,350 train; 3,760 validation; 4,358 test
+4. structure-aware normalization: 17 tests and zero heading-level changes
+5. raw blank-padded reconstruction: 28,472 training documents and 60 validation documents
+6. hard article-count assertions tied to the pinned revision
+7. guarded `_fingerprint` values retained only as local diagnostics
 
-Important preprocessing decisions:
-- train the tokenizer on the entire normalized official training split only
-- repair placeholders, common punctuation/bracket spacing, Unicode-aware apostrophe suffixes, currency, times, and paired double quotes
-- retain ambiguous spaced single quotes and bare plural possessives as documented residue
-- count document-boundary tokens inside the exact 20M-token budget
-- re-seed a local RNG immediately before article sampling and save an ordered manifest
+Resolved audit findings:
+- ordinary prose normalization damaged 11 training title frames and one validation title frame
+- shape-only heading matching introduced 969 false training boundaries
+- all five one-sided candidates were references, table fragments, or citation metadata
+- the original 28,475 summary differs by three from the reproducible 28,472-document released corpus
+- no heuristic boundary exceptions are used
 
-Tokenizer training and 20M-token corpus construction have not started.
+The test split remains uninspected. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Next implementation step
-After review of this chunk:
+Begin the next reviewable tokenizer chunk:
 1. choose and document the document-boundary special token
-2. train the 16,384-token byte-level BPE tokenizer from scratch
-3. validate encode/decode behavior and record the tokenizer checksum
-4. construct the fixed 20M-token article-sampled corpus and reproducibility manifest
-5. preserve official validation/test sets for their intended roles
+2. train the 16,384-token byte-level BPE tokenizer on the full normalized pinned training split
+3. validate encode/decode behavior and special-token handling
+4. record the tokenizer files and checksum
+5. then construct the exact 20M-token sampled corpus and manifest
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.

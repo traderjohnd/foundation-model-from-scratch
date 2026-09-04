@@ -142,24 +142,29 @@ Locked at target-design level.
 ## D-006 — Source dataset
 
 **Decision**  
-Choose a meaningful, general-purpose text corpus.
+Choose and freeze a meaningful, general-purpose text corpus.
 
 **Selected choice**  
-**WikiText-103**
+Hugging Face dataset `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`, pinned to Hub commit:
+
+`b08601e04326c79dfdd32d625aee71d232d685c3`
 
 **Rationale**  
-Real Wikipedia prose is more linguistically complex and presentation-relevant than simplified synthetic datasets such as TinyStories.
+Real Wikipedia prose is more linguistically complex and presentation-relevant than simplified synthetic datasets such as TinyStories. Pinning the immutable Hub commit prevents later upstream changes from silently changing the corpus or invalidating verified row and article counts.
+
+The guarded private `_fingerprint` values are retained as local sanity diagnostics, not as upstream version identifiers.
 
 **Alternatives considered**
+- load the moving Hub `main` revision
+- identify the corpus only by a local `datasets` fingerprint
 - TinyStories
-- other general corpora
-- domain-specific corpora
+- other general or domain-specific corpora
 
 **Presentation relevance**  
-Explain why realistic text makes the scaling experiment harder but more meaningful.
+Explain why realistic text makes the scaling experiment harder but more meaningful, and distinguish immutable upstream provenance from local cache-derived diagnostics.
 
 **Status / evidence**  
-Locked.
+Locked. The pinned revision reproduces 1,801,350 train rows, 3,760 validation rows, 4,358 test rows, 28,472 structurally reconstructed training documents, and 60 validation documents.
 
 ---
 
@@ -1273,24 +1278,27 @@ Locked.
 How to normalize WikiText-103 artifacts before tokenizer training and evaluation.
 
 **Selected choice**  
-Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency and clock-time spacing; and pairs spaced double quotation marks deterministically within each row. It preserves case, Unicode, row order, headings, and article structure.
+Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency, clock-time, and numeric en-dash spacing; and pairs spaced double quotation marks deterministically within each row.
 
-Spaced single quotation marks and bare plural possessives remain documented residue. Their surface forms are contextually ambiguous—for example, `Nameless ' unit` versus `players ' hopes`—and a context-free regex can silently corrupt one while repairing the other.
+Parse generic heading rows before prose normalization. Normalize only the inner title, then reconstruct the equals-sign framing at its original level so punctuation-leading titles such as `= ... Thirteen Years Later =` remain structurally detectable. Preserve case, Unicode, row order, and article structure.
+
+Spaced single quotation marks and bare plural possessives remain documented residue because their surface forms are contextually ambiguous.
 
 **Rationale**  
-The tokenizer should learn natural punctuation instead of WikiText placeholders, and validation perplexity must be measured on the same transformation used for training. Conservatively preserving ambiguous single-apostrophe forms is preferable to changing their meaning.
+The tokenizer should learn natural punctuation instead of WikiText placeholders, validation perplexity must use the same transformation as training, and normalization must not destroy structural markup needed for article reconstruction.
 
 **Alternatives considered**
+- normalize heading rows as ordinary prose
 - keep WikiText-103-raw-v1 unchanged
 - restore placeholders only
 - apply a broad single-quote/plural-possessive regex
 - use different cleanup for each split
 
 **Presentation relevance**  
-Makes the preprocessing policy auditable and explains both the repaired artifacts and the intentionally retained residue.
+Makes the preprocessing policy auditable and shows why structural markup must be separated from prose cleanup.
 
 **Status / evidence**  
-Locked. Thirteen unit-test strings cover placeholders, brackets, contractions, Unicode apostrophes, currency, times, double quotes, ambiguous single quotes, plural possessives, and unchanged abbreviations.
+Locked. Seventeen normalization tests pass. The full v6 Colab run reported zero heading-level classification changes across train and validation, restored all 60 validation titles, and correctly normalized punctuation-leading titles and numeric en-dash ranges.
 
 ---
 
@@ -1341,38 +1349,41 @@ Locked; the corpus manifest will record boundary-token inclusion per article.
 
 ---
 
-## D-054 — Article-level sampling and reproducibility manifest
+## D-054 — Article-boundary reconstruction and sampling manifest
 
 **Decision**  
-How to select the fixed 20M-token model-training corpus.
+How to identify article units before selecting the fixed 20M-token model-training corpus.
 
 **Selected choice**  
-Reconstruct WikiText articles from level-1 heading rows matching `= Title =`. Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of training article indices, encode whole articles, and append a boundary token. Add article sequences in that order until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+Detect level-1 headings from raw rows before normalization. Treat a raw level-1 heading as an article start only when its immediately preceding and following raw rows are blank. Store normalized text, and derive the article record's title by normalizing the raw heading's inner title.
 
-Save a manifest with the dataset fingerprint, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
+For the pinned WikiText revision, hard-assert exactly 28,472 training documents and 60 validation documents. The original WikiText summary reports 28,475 training articles, but the released corpus and independent downstream work reproducibly report 28,472 training documents.
+
+Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole articles, and append a boundary token. Add articles until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+
+Save a manifest with the Hub revision, guarded local fingerprints, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
+
+**Evidence**  
+Shape-only raw matching found 29,444 training candidates and 60 validation candidates. Prose normalization previously destroyed the framing of 11 training titles and one validation title. Structure-aware normalization reduced classification changes to zero.
+
+Blank padding removed 969 internal table/equation fragments and produced 28,472 credible training documents plus all 60 validation documents. Of 972 rejected training candidates, 967 had no blank neighbors. The remaining five one-sided candidates were audited as bibliography entries, table fragments, or citation metadata; relaxing the rule would reintroduce false boundaries.
 
 **Rationale**  
-Article-level sampling preserves local coherence, avoids reliance on mutable global RNG state, and makes the exact corpus independently reconstructable.
-
-**Alternatives considered**
-- shuffle dataset rows or paragraphs
-- sample individual tokens
-- rely on RNG state initialized at notebook start
-- omit the ordered selection manifest
+Raw structural detection prevents normalization from changing boundaries. Blank padding preserves genuine articles without promoting equals-shaped table, equation, or reference rows. The strict rule is more defensible than heuristic exceptions, and its counts match the released corpus used by multiple downstream studies.
 
 **Presentation relevance**  
-Provides a clear provenance story for the controlled training corpus.
+Provides a concise three-cause audit story: normalization-damaged headings, shape-only false positives, and a published-summary versus released-corpus count discrepancy.
 
 **Status / evidence**  
-Locked as a specification; article reconstruction has synthetic tests, and corpus construction follows tokenizer training.
+Locked. Hard assertions are tied to the immutable Hub revision. Tokenizer training and corpus sampling may proceed.
 
 ---
 
 # Current project state
 
-**Notebook 01, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
+**Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-The data audit, normalization policy, article reconstruction, and exact sampling specification are published on `main`. Tokenizer training and 20M-token corpus construction have not started.
+The initial audit is published on `main`. D-006, D-051, and D-054 are locked with immutable upstream provenance, full-data normalization evidence, and hard 28,472/60 article-count assertions. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
