@@ -457,9 +457,9 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 — Data & Tokenization is underway in draft PR #1.**
+**Notebook 01 — Data & Tokenization, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
 
-Completed in the current chunk:
+Published in the current checkpoint:
 1. load and verify WikiText-103 official splits
 2. audit WikiText tokenization artifacts without using test text
 3. define one tested normalization function for train, validation, and later test
