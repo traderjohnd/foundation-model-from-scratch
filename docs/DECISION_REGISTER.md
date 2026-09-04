@@ -1272,7 +1272,7 @@ Locked.
 **Decision**  
 How to normalize WikiText-103 artifacts before tokenizer training and evaluation.
 
-**Provisional choice**  
+**Selected choice**  
 Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency, clock-time, and numeric en-dash spacing; and pairs spaced double quotation marks deterministically within each row.
 
 Parse generic heading rows before prose normalization. Normalize only the inner title, then reconstruct the equals-sign framing at its original level so punctuation-leading titles such as `= ... Thirteen Years Later =` remain structurally detectable. Preserve case, Unicode, row order, and article structure.
@@ -1293,7 +1293,7 @@ The tokenizer should learn natural punctuation instead of WikiText placeholders,
 Makes the preprocessing policy auditable and shows why structural markup must be separated from prose cleanup.
 
 **Status / evidence**  
-Provisional. Seventeen local unit tests pass, including punctuation-leading level-1 titles, the real spaced level-2 heading form, and numeric en-dash ranges. Relock only after the full Colab run shows that heading levels are preserved and the structural article counts are correct.
+Locked. Seventeen normalization tests pass. The full v6 Colab run reported zero heading-level classification changes across train and validation, restored all 60 validation titles, and correctly normalized punctuation-leading titles and numeric en-dash ranges.
 
 ---
 
@@ -1359,7 +1359,7 @@ Save a manifest with the dataset fingerprint, seed, ordered article IDs, full an
 **Observed evidence**  
 The shape-only raw scan found 29,444 training candidates and 60 validation candidates. Ordinary prose normalization destroyed the heading shape of 11 training titles and one validation title, producing the earlier 29,433/59 reconstruction. The shortest extra training segments are table and equation rows such as `Draw; L`, `Win; D`, and `1, θ`, confirming that shape alone creates false boundaries.
 
-The blank-padding structural rule is now implemented but not yet validated on the full splits.
+The full v6 Colab run found 28,472 blank-padded training articles and all 60 validation articles, with zero normalization-induced heading changes. The shortest reconstructed training units are credible articles, confirming that blank padding removed the table/equation fragments. Three published training articles remain to be identified among the 972 rejected raw candidates.
 
 **Rationale**  
 Whole-article sampling preserves local coherence only if the boundaries are trustworthy. Raw structural detection prevents normalization from changing boundaries, while blank padding distinguishes real titles from consecutive table or equation rows.
@@ -1373,7 +1373,7 @@ Whole-article sampling preserves local coherence only if the boundaries are trus
 Provides a transparent example of an audit changing an experimental assumption before model training.
 
 **Status / evidence**  
-Reopened and provisional. Tokenizer training and corpus sampling remain paused. If the Colab run produces exactly 28,475 training articles and 60 validation articles, promote those counts to hard assertions before relocking D-054.
+Reopened and provisional. Tokenizer training and corpus sampling remain paused. The v7 diagnostic groups all rejected candidates by blank-neighbor pattern and displays one-sided candidates with full-row prose/level-2 classification. Relock only after a deterministic fallback recovers exactly three real articles without reintroducing false boundaries, then add hard 28,475/60 assertions.
 
 ---
 
@@ -1381,7 +1381,7 @@ Reopened and provisional. Tokenizer training and corpus sampling remain paused. 
 
 **Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-The initial audit is published on `main`. D-051 and D-054 are provisional while structure-aware heading normalization and raw blank-padded article boundaries are validated. Tokenizer training and 20M-token corpus construction have not started.
+The initial audit is published on `main`. D-051 is relocked after full-data validation; D-054 remains provisional while the three unpadded training articles are identified. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
