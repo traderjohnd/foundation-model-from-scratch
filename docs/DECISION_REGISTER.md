@@ -1370,13 +1370,13 @@ Locked as a specification; article reconstruction has synthetic tests, and corpu
 
 # Current project state
 
-**Notebook 01 is underway on the `notebook-01-data-tokenization` branch.**
+**Notebook 01, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
 
-The data audit, normalization policy, article reconstruction, and exact sampling specification are implemented in draft PR #1. Tokenizer training and 20M-token corpus construction have not started.
+The data audit, normalization policy, article reconstruction, and exact sampling specification are published on `main`. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
-Review the current notebook chunk, then:
+Begin the next reviewed notebook chunk:
 1. choose and document the document-boundary special token
 2. train the 16,384-token byte-level BPE tokenizer on the full normalized training split
 3. validate tokenizer behavior and save its checksum
