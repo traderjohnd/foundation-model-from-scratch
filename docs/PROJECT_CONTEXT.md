@@ -457,24 +457,25 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
+**Notebook 01 preprocessing is published on `main`; structure-aware normalization and article reconstruction are being validated in draft PR #3.**
 
 Verified:
 1. WikiText-103 official row counts and split fingerprints
 2. tokenization-artifact audit without inspecting test text
-3. one tested normalization function for train, validation, and later test
-4. 13 passing normalization policy cases
-5. synthetic reconstruction with the real `= = Internal Section = =` section-heading form
+3. the old normalizer destroyed 11 training title frames and one validation title frame
+4. shape-only raw detection finds 29,444 training candidates and 60 validation candidates
+5. the shortest extra training segments are internal table/equation rows, not articles
+6. the synthetic reconstruction uses the real `= = Internal Section = =` form
 
-Open issue:
-- the initial `= Title =` reconstruction produced 29,433 training units versus 28,475 published articles
-- it produced 59 validation units versus 60 published articles
-- D-054 is reopened; the units are currently “heading-delimited segments,” not verified articles
-- tokenizer training and 20M-token corpus construction are paused
+Provisional changes:
+- D-051: parse headings before normalization, normalize only the title interior, preserve framing, and normalize numeric en-dash ranges
+- D-054: detect article starts on raw level-1 headings with blank rows immediately before and after
+- 17 normalization and synthetic tests pass locally
+- tokenizer training and 20M-token corpus construction remain paused
 
-The tokenizer will still train on the entire normalized official training split only. The exact deterministic sampling and manifest design remains provisional until the sampling unit is reconciled.
+The tokenizer will still train on the entire normalized official training split only. The deterministic sampling and manifest design remains provisional until the article counts are proven.
 
 ## Next implementation step
-Run the article-boundary diagnostic cells in Colab. Compare raw and normalized heading counts, inspect any changed classifications, review all validation titles, and inspect the 25 shortest training segments. Use those outputs to select and test one deterministic boundary policy before relocking D-054.
+Run the v6 notebook in Colab. Confirm that raw blank-padded boundaries produce exactly 28,475 training articles and 60 validation articles, and that normalization causes zero heading-level changes. If both conditions hold, add hard assertions and relock D-051 and D-054; otherwise inspect the remaining exceptions before refining the rule.
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.
