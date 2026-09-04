@@ -1209,20 +1209,30 @@ How to organize implementation, experiments, results, and presentation evidence.
 - `figures/`
 - `checkpoints/`
 
-Four notebooks:
-1. data and tokenizer
-2. model architecture
-3. training pipeline
-4. evaluation and scaling
+Five notebooks:
+1. **Data Preparation & Corpus Audit** — raw WikiText → verified normalized/reconstructed articles
+2. **Tokenizer Training & Corpus Construction** — verified articles → byte-level BPE tokenizer → exact 20M-token corpus
+3. **Model Architecture** — tokenizer/corpus contract → decoder-only Transformer implementation
+4. **Training Pipeline** — explicit PyTorch training/validation/checkpoint loop
+5. **Evaluation & Scaling** — controlled model comparison and final evidence
+
+Reusable deterministic preprocessing lives in `src/data.py`. Notebook 01 remains the completed executable audit artifact; Notebook 02 independently imports the shared implementation and must not depend on Notebook 01 kernel state.
 
 **Rationale**  
-Keeps learning chunks coherent and prevents one giant notebook from mixing everything together.
+The original four-notebook plan grouped data preparation and tokenizer work together. After the corpus audit became a substantial, independently verified artifact, separating tokenizer/corpus construction into its own notebook produced a cleaner contract: Notebook 01 freezes the audited text pipeline, while Notebook 02 consumes that contract and creates the tokenizer/model-training corpus. This preserves small coherent learning chunks without allowing one notebook to accumulate unrelated audit, tokenizer, architecture, and training concerns.
+
+Extracting `src/data.py` makes the verified loading/normalization/reconstruction logic reusable by tokenizer training, corpus construction, and later training code while avoiding hidden Colab-state dependencies.
+
+**Alternatives considered**
+- original four-notebook plan with data preparation and tokenizer training combined in Notebook 01
+- duplicate preprocessing code in Notebook 02
+- make Notebook 02 depend on an already-executed Notebook 01 runtime
 
 **Presentation relevance**  
-The project structure itself demonstrates engineering discipline.
+The project structure itself demonstrates engineering discipline, artifact boundaries, reproducibility, and separation between executable evidence and reusable source code.
 
 **Status / evidence**  
-Locked.
+**Amended September 4, 2026.** D-048 was originally locked as a four-notebook structure. The revised five-notebook structure supersedes that numbering after Notebook 01 was deliberately frozen as **Data Preparation & Corpus Audit** and Notebook 02 was created as **Tokenizer Training & Corpus Construction**. `src/data.py` was extracted without refactoring the verified core logic. A fresh Notebook 02 execution passed the same 17 normalization regression tests and reproduced exactly 28,472 training articles and 60 validation articles through the shared module.
 
 ---
 
@@ -1270,7 +1280,6 @@ Ensures the final story is built continuously rather than reconstructed.
 Locked.
 
 ---
-
 
 ## D-051 — WikiText normalization policy
 
@@ -1322,7 +1331,7 @@ The tokenizer must exist before exact tokenizer-produced article counts can be c
 Separates tokenizer vocabulary learning from the controlled model-training compute budget.
 
 **Status / evidence**  
-Locked; implementation is the next notebook chunk.
+Locked. Notebook 02 now independently reproduces the audited input articles through `src/data.py`; tokenizer training begins after the D-055 special-token contract is implemented and checked.
 
 ---
 
@@ -1357,7 +1366,7 @@ How to identify article units before selecting the fixed 20M-token model-trainin
 **Selected choice**  
 Detect level-1 headings from raw rows before normalization. Treat a raw level-1 heading as an article start only when its immediately preceding and following raw rows are blank. Store normalized text, and derive the article record's title by normalizing the raw heading's inner title.
 
-For the pinned WikiText revision, hard-assert exactly 28,472 training documents and 60 validation documents. The original WikiText summary reports 28,475 training articles, but the released corpus and independent downstream work reproducibly report 28,472 training documents.
+For the pinned WikiText revision, hard-assert exactly 28,472 training documents and 60 validation documents. The original WikiText summary reports 28,475 training articles; the locked reconstruction rule applied to the pinned released corpus reproducibly yields 28,472 training documents.
 
 Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole articles, and append a boundary token. Add articles until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
 
@@ -1369,30 +1378,34 @@ Shape-only raw matching found 29,444 training candidates and 60 validation candi
 Blank padding removed 969 internal table/equation fragments and produced 28,472 credible training documents plus all 60 validation documents. Of 972 rejected training candidates, 967 had no blank neighbors. The remaining five one-sided candidates were audited as bibliography entries, table fragments, or citation metadata; relaxing the rule would reintroduce false boundaries.
 
 **Rationale**  
-Raw structural detection prevents normalization from changing boundaries. Blank padding preserves genuine articles without promoting equals-shaped table, equation, or reference rows. The strict rule is more defensible than heuristic exceptions, and its counts match the released corpus used by multiple downstream studies.
+Raw structural detection prevents normalization from changing boundaries. Blank padding preserves genuine articles without promoting equals-shaped table, equation, or reference rows. The strict rule is more defensible than heuristic exceptions, and the hard counts make future preprocessing changes regression-testable against the pinned corpus.
 
 **Presentation relevance**  
 Provides a concise three-cause audit story: normalization-damaged headings, shape-only false positives, and a published-summary versus released-corpus count discrepancy.
 
 **Status / evidence**  
-Locked. Hard assertions are tied to the immutable Hub revision. Tokenizer training and corpus sampling may proceed.
+Locked. Hard assertions are tied to the immutable Hub revision. The implementation has now also been extracted to `src/data.py` and independently re-executed from Notebook 02: 17/17 normalization tests passed and article counts reproduced exactly at 28,472 train / 60 validation. Tokenizer training and corpus sampling may proceed.
 
 ---
 
 # Current project state
 
-**Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
+**Notebook 01 — Data Preparation & Corpus Audit is complete and verified. Notebook 02 — Tokenizer Training & Corpus Construction has passed its first independent-reproduction chunk through `src/data.py`.**
 
-The initial audit is published on `main`. D-006, D-051, and D-054 are locked with immutable upstream provenance, full-data normalization evidence, and hard 28,472/60 article-count assertions. Tokenizer training and 20M-token corpus construction have not started.
+D-006, D-051, and D-054 remain locked with immutable upstream provenance, full-data normalization evidence, and hard 28,472/60 article-count assertions. The reusable implementation is now canonical in `src/data.py`, and Notebook 02 pins that source revision so the preprocessing transformation cannot silently drift. A fresh Notebook 02 execution passed all 17 normalization regression tests and reproduced exactly 28,472 training articles and 60 validation articles without relying on Notebook 01 kernel state.
+
+The test split remains uninspected. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
-Begin the next reviewed notebook chunk:
-1. choose and document the document-boundary special token
-2. train the 16,384-token byte-level BPE tokenizer on the full normalized training split
-3. validate tokenizer behavior and save its checksum
-4. construct the fixed 20M-token article-sampled corpus and manifest
-5. preserve official validation/test splits for their intended roles
+Begin the next reviewed Notebook 02 chunk:
+1. lock D-055 for the document-boundary/EOS special token
+2. verify literal boundary-token collision behavior and count literal `<unk>` occurrences in development-visible articles
+3. configure the 16,384-token byte-level BPE tokenizer
+4. train on the full normalized pinned training split only
+5. validate tokenizer behavior and save its checksum
+6. construct the fixed 20M-token article-sampled corpus and manifest
+7. preserve official validation/test splits for their intended roles
 
 ## Rule for future work
 Continue in small, coherent chunks. Each major technical decision should be:
