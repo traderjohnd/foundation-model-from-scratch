@@ -457,30 +457,24 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 — Data & Tokenization, through the preprocessing and sampling-policy checkpoint, is published on `main` via PR #1.**
+**Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-Published in the current checkpoint:
-1. load and verify WikiText-103 official splits
-2. audit WikiText tokenization artifacts without using test text
-3. define one tested normalization function for train, validation, and later test
-4. reconstruct article units from level-1 headings with fail-fast preamble validation
-5. lock tokenizer-corpus and exact 20M-token article-sampling specifications
+Verified:
+1. WikiText-103 official row counts and split fingerprints
+2. tokenization-artifact audit without inspecting test text
+3. one tested normalization function for train, validation, and later test
+4. 13 passing normalization policy cases
+5. synthetic reconstruction with the real `= = Internal Section = =` section-heading form
 
-Important preprocessing decisions:
-- train the tokenizer on the entire normalized official training split only
-- repair placeholders, common punctuation/bracket spacing, Unicode-aware apostrophe suffixes, currency, times, and paired double quotes
-- retain ambiguous spaced single quotes and bare plural possessives as documented residue
-- count document-boundary tokens inside the exact 20M-token budget
-- re-seed a local RNG immediately before article sampling and save an ordered manifest
+Open issue:
+- the initial `= Title =` reconstruction produced 29,433 training units versus 28,475 published articles
+- it produced 59 validation units versus 60 published articles
+- D-054 is reopened; the units are currently “heading-delimited segments,” not verified articles
+- tokenizer training and 20M-token corpus construction are paused
 
-Tokenizer training and 20M-token corpus construction have not started.
+The tokenizer will still train on the entire normalized official training split only. The exact deterministic sampling and manifest design remains provisional until the sampling unit is reconciled.
 
 ## Next implementation step
-After review of this chunk:
-1. choose and document the document-boundary special token
-2. train the 16,384-token byte-level BPE tokenizer from scratch
-3. validate encode/decode behavior and record the tokenizer checksum
-4. construct the fixed 20M-token article-sampled corpus and reproducibility manifest
-5. preserve official validation/test sets for their intended roles
+Run the article-boundary diagnostic cells in Colab. Compare raw and normalized heading counts, inspect any changed classifications, review all validation titles, and inspect the 25 shortest training segments. Use those outputs to select and test one deterministic boundary policy before relocking D-054.
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.
