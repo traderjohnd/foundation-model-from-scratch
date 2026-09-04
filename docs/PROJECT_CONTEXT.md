@@ -457,18 +457,30 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Planning phase is complete enough to begin implementation.**
+**Notebook 01 — Data & Tokenization is underway in draft PR #1.**
+
+Completed in the current chunk:
+1. load and verify WikiText-103 official splits
+2. audit WikiText tokenization artifacts without using test text
+3. define one tested normalization function for train, validation, and later test
+4. reconstruct article units from level-1 headings with fail-fast preamble validation
+5. lock tokenizer-corpus and exact 20M-token article-sampling specifications
+
+Important preprocessing decisions:
+- train the tokenizer on the entire normalized official training split only
+- repair placeholders, common punctuation/bracket spacing, Unicode-aware apostrophe suffixes, currency, times, and paired double quotes
+- retain ambiguous spaced single quotes and bare plural possessives as documented residue
+- count document-boundary tokens inside the exact 20M-token budget
+- re-seed a local RNG immediately before article sampling and save an ordered manifest
+
+Tokenizer training and 20M-token corpus construction have not started.
 
 ## Next implementation step
-Create the repository and start:
-
-**Notebook 01 — Data & Tokenization**
-
-Initial implementation goals:
-1. load WikiText-103
-2. inspect/prepare corpus
-3. train a 16,384-token byte-level BPE tokenizer from scratch
-4. use the tokenizer to construct the fixed 20M-token training corpus
+After review of this chunk:
+1. choose and document the document-boundary special token
+2. train the 16,384-token byte-level BPE tokenizer from scratch
+3. validate encode/decode behavior and record the tokenizer checksum
+4. construct the fixed 20M-token article-sampled corpus and reproducibility manifest
 5. preserve official validation/test sets for their intended roles
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.

@@ -1266,20 +1266,121 @@ Locked.
 
 ---
 
+
+## D-051 — WikiText normalization policy
+
+**Decision**  
+How to normalize WikiText-103 artifacts before tokenizer training and evaluation.
+
+**Selected choice**  
+Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency and clock-time spacing; and pairs spaced double quotation marks deterministically within each row. It preserves case, Unicode, row order, headings, and article structure.
+
+Spaced single quotation marks and bare plural possessives remain documented residue. Their surface forms are contextually ambiguous—for example, `Nameless ' unit` versus `players ' hopes`—and a context-free regex can silently corrupt one while repairing the other.
+
+**Rationale**  
+The tokenizer should learn natural punctuation instead of WikiText placeholders, and validation perplexity must be measured on the same transformation used for training. Conservatively preserving ambiguous single-apostrophe forms is preferable to changing their meaning.
+
+**Alternatives considered**
+- keep WikiText-103-raw-v1 unchanged
+- restore placeholders only
+- apply a broad single-quote/plural-possessive regex
+- use different cleanup for each split
+
+**Presentation relevance**  
+Makes the preprocessing policy auditable and explains both the repaired artifacts and the intentionally retained residue.
+
+**Status / evidence**  
+Locked. Thirteen unit-test strings cover placeholders, brackets, contractions, Unicode apostrophes, currency, times, double quotes, ambiguous single quotes, plural possessives, and unchanged abbreviations.
+
+---
+
+## D-052 — Tokenizer training corpus
+
+**Decision**  
+What text the byte-level BPE tokenizer sees during training.
+
+**Selected choice**  
+Train the 16,384-token byte-level BPE tokenizer on the entire normalized official WikiText-103 training split. Do not use validation or test text. The language models still train on the fixed 20,000,000-token sampled subset.
+
+**Rationale**  
+The tokenizer must exist before exact tokenizer-produced article counts can be computed, so training it on the 20M subset would be circular. Full-train exposure also improves vocabulary coverage without leaking validation or test data.
+
+**Alternatives considered**
+- train the tokenizer on the eventual 20M model-training subset
+- include validation text
+- use a pretrained tokenizer
+
+**Presentation relevance**  
+Separates tokenizer vocabulary learning from the controlled model-training compute budget.
+
+**Status / evidence**  
+Locked; implementation is the next notebook chunk.
+
+---
+
+## D-053 — Document-boundary token accounting
+
+**Decision**  
+Whether article-boundary special tokens count toward the exact 20M-token corpus budget.
+
+**Selected choice**  
+Append one document-boundary token after each complete article and count it inside the exact 20,000,000-token budget. If the final selected article is truncated before its boundary token, that boundary token is not included.
+
+**Rationale**  
+“Exactly 20M tokenizer-produced tokens” then describes the actual sequence consumed by every model, including structural tokens.
+
+**Alternatives considered**
+- count 20M lexical tokens and add boundary tokens outside the budget
+- exclude all special tokens from corpus accounting
+
+**Presentation relevance**  
+Makes the training-token claim precise and reproducible.
+
+**Status / evidence**  
+Locked; the corpus manifest will record boundary-token inclusion per article.
+
+---
+
+## D-054 — Article-level sampling and reproducibility manifest
+
+**Decision**  
+How to select the fixed 20M-token model-training corpus.
+
+**Selected choice**  
+Reconstruct WikiText articles from level-1 heading rows matching `= Title =`. Immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of training article indices, encode whole articles, and append a boundary token. Add article sequences in that order until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+
+Save a manifest with the dataset fingerprint, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
+
+**Rationale**  
+Article-level sampling preserves local coherence, avoids reliance on mutable global RNG state, and makes the exact corpus independently reconstructable.
+
+**Alternatives considered**
+- shuffle dataset rows or paragraphs
+- sample individual tokens
+- rely on RNG state initialized at notebook start
+- omit the ordered selection manifest
+
+**Presentation relevance**  
+Provides a clear provenance story for the controlled training corpus.
+
+**Status / evidence**  
+Locked as a specification; article reconstruction has synthetic tests, and corpus construction follows tokenizer training.
+
+---
+
 # Current project state
 
-**Planning is complete enough to begin implementation.**
+**Notebook 01 is underway on the `notebook-01-data-tokenization` branch.**
+
+The data audit, normalization policy, article reconstruction, and exact sampling specification are implemented in draft PR #1. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
-Create the repository and begin:
 
-**Notebook 01 — Data & Tokenization**
-
-Initial goals:
-1. load WikiText-103
-2. inspect and prepare the corpus
-3. train a 16,384-token byte-level BPE tokenizer from scratch
-4. construct the fixed 20M-token training corpus
+Review the current notebook chunk, then:
+1. choose and document the document-boundary special token
+2. train the 16,384-token byte-level BPE tokenizer on the full normalized training split
+3. validate tokenizer behavior and save its checksum
+4. construct the fixed 20M-token article-sampled corpus and manifest
 5. preserve official validation/test splits for their intended roles
 
 ## Rule for future work
