@@ -1272,25 +1272,28 @@ Locked.
 **Decision**  
 How to normalize WikiText-103 artifacts before tokenizer training and evaluation.
 
-**Selected choice**  
-Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency and clock-time spacing; and pairs spaced double quotation marks deterministically within each row. It preserves case, Unicode, row order, headings, and article structure.
+**Provisional choice**  
+Use one explicit, unit-tested `normalize_wikitext_text` function for train, validation, and later test. It restores `@-@`, `@,@`, and `@.@`; repairs common punctuation and bracket spacing; joins common apostrophe suffixes with Unicode-aware `\w+` matching; repairs currency, clock-time, and numeric en-dash spacing; and pairs spaced double quotation marks deterministically within each row.
 
-Spaced single quotation marks and bare plural possessives remain documented residue. Their surface forms are contextually ambiguous—for example, `Nameless ' unit` versus `players ' hopes`—and a context-free regex can silently corrupt one while repairing the other.
+Parse generic heading rows before prose normalization. Normalize only the inner title, then reconstruct the equals-sign framing at its original level so punctuation-leading titles such as `= ... Thirteen Years Later =` remain structurally detectable. Preserve case, Unicode, row order, and article structure.
+
+Spaced single quotation marks and bare plural possessives remain documented residue because their surface forms are contextually ambiguous.
 
 **Rationale**  
-The tokenizer should learn natural punctuation instead of WikiText placeholders, and validation perplexity must be measured on the same transformation used for training. Conservatively preserving ambiguous single-apostrophe forms is preferable to changing their meaning.
+The tokenizer should learn natural punctuation instead of WikiText placeholders, validation perplexity must use the same transformation as training, and normalization must not destroy structural markup needed for article reconstruction.
 
 **Alternatives considered**
+- normalize heading rows as ordinary prose
 - keep WikiText-103-raw-v1 unchanged
 - restore placeholders only
 - apply a broad single-quote/plural-possessive regex
 - use different cleanup for each split
 
 **Presentation relevance**  
-Makes the preprocessing policy auditable and explains both the repaired artifacts and the intentionally retained residue.
+Makes the preprocessing policy auditable and shows why structural markup must be separated from prose cleanup.
 
 **Status / evidence**  
-Locked. Thirteen unit-test strings cover placeholders, brackets, contractions, Unicode apostrophes, currency, times, double quotes, ambiguous single quotes, plural possessives, and unchanged abbreviations.
+Provisional. Seventeen local unit tests pass, including punctuation-leading level-1 titles, the real spaced level-2 heading form, and numeric en-dash ranges. Relock only after the full Colab run shows that heading levels are preserved and the structural article counts are correct.
 
 ---
 
@@ -1347,27 +1350,30 @@ Locked; the corpus manifest will record boundary-token inclusion per article.
 How to identify article units before selecting the fixed 20M-token model-training corpus.
 
 **Provisional design**  
-Prefer whole-article sampling: immediately before sampling, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole units, and append a boundary token. Add units in that order until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
+Detect level-1 headings from raw rows before normalization. Treat a raw level-1 heading as an article start only when its immediately preceding and following raw rows are blank. Store normalized text, and derive the article record's title by normalizing the raw heading's inner title.
+
+After the boundary rule is verified, create `np.random.default_rng(42)`, generate one deterministic permutation of verified training article indices, encode whole articles, and append a boundary token. Add articles until the running count crosses 20M, then truncate only the final selected sequence to exactly 20,000,000 tokens.
 
 Save a manifest with the dataset fingerprint, seed, ordered article IDs, full and included token counts, boundary-token inclusion, final truncation length, tokenizer checksum, and total token count.
 
-**Observed blocker**  
-The initial `= Title =` reconstruction produced 29,433 training units and 59 validation units, while the published WikiText-103 statistics report 28,475 and 60. The opposite-signed discrepancies may have separate causes. Until raw-versus-normalized heading detection and the anomalous units are inspected, these units must be called heading-delimited segments rather than articles.
+**Observed evidence**  
+The shape-only raw scan found 29,444 training candidates and 60 validation candidates. Ordinary prose normalization destroyed the heading shape of 11 training titles and one validation title, producing the earlier 29,433/59 reconstruction. The shortest extra training segments are table and equation rows such as `Draw; L`, `Win; D`, and `1, θ`, confirming that shape alone creates false boundaries.
+
+The blank-padding structural rule is now implemented but not yet validated on the full splits.
 
 **Rationale**  
-Whole-article sampling can preserve local coherence only if the boundaries are trustworthy. The exact deterministic sampling and manifest design remains appropriate after the unit definition is reconciled.
+Whole-article sampling preserves local coherence only if the boundaries are trustworthy. Raw structural detection prevents normalization from changing boundaries, while blank padding distinguishes real titles from consecutive table or equation rows.
 
-**Alternatives under investigation**
-- accept source heading-delimited segments and weaken the continuity claim
-- require blank-row context around a level-1 heading
-- repair a demonstrably malformed or missing validation boundary
-- adopt another deterministic boundary rule supported by the diagnostic evidence
+**Fallback if counts do not match**
+- inspect the remaining blank-padded exceptions
+- require that the next nonblank row is prose rather than another equals-shaped row
+- adopt another deterministic refinement supported by the diagnostic evidence
 
 **Presentation relevance**  
 Provides a transparent example of an audit changing an experimental assumption before model training.
 
 **Status / evidence**  
-Reopened on 2026-09-04. Tokenizer training and corpus sampling are paused. Notebook diagnostics compare raw and normalized matches, list validation titles, and inspect the shortest training segments.
+Reopened and provisional. Tokenizer training and corpus sampling remain paused. If the Colab run produces exactly 28,475 training articles and 60 validation articles, promote those counts to hard assertions before relocking D-054.
 
 ---
 
@@ -1375,7 +1381,7 @@ Reopened on 2026-09-04. Tokenizer training and corpus sampling are paused. Noteb
 
 **Notebook 01 preprocessing is published on `main`; article-boundary reconstruction is under diagnosis.**
 
-The data audit and normalization policy are published on `main`. The initial reconstruction count disagrees with published WikiText-103 article counts, so D-054 is reopened. Tokenizer training and 20M-token corpus construction have not started.
+The initial audit is published on `main`. D-051 and D-054 are provisional while structure-aware heading normalization and raw blank-padded article boundaries are validated. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Immediate next step
 
