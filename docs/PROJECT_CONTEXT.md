@@ -457,7 +457,7 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 data audit and article reconstruction are complete in draft PR #3.**
+**Notebook 01 data audit and article reconstruction are complete on `main` (merged through PR #3).**
 
 Locked evidence:
 1. dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
