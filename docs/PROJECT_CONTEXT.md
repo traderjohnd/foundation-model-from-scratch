@@ -457,25 +457,32 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 preprocessing is published on `main`; the final three unpadded training articles are being diagnosed in draft PR #3.**
+**Notebook 01 data audit and article reconstruction are complete in draft PR #3.**
 
-Verified:
-1. WikiText-103 official row counts and split fingerprints
-2. tokenization-artifact audit without inspecting test text
-3. the old normalizer destroyed 11 training title frames and one validation title frame
-4. shape-only raw detection finds 29,444 training candidates and 60 validation candidates
-5. the shortest extra training segments are internal table/equation rows, not articles
-6. the synthetic reconstruction uses the real `= = Internal Section = =` form
+Locked evidence:
+1. dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
+2. immutable Hub revision: `b08601e04326c79dfdd32d625aee71d232d685c3`
+3. official rows: 1,801,350 train; 3,760 validation; 4,358 test
+4. structure-aware normalization: 17 tests and zero heading-level changes
+5. raw blank-padded reconstruction: 28,472 training documents and 60 validation documents
+6. hard article-count assertions tied to the pinned revision
+7. guarded `_fingerprint` values retained only as local diagnostics
 
-Current decisions:
-- D-051 is relocked: 17 tests pass and the full run reported zero heading-level changes
-- raw blank-padded detection reconstructs all 60 validation articles and 28,472 credible training articles
-- D-054 remains provisional while the three unpadded training articles are isolated
-- tokenizer training and 20M-token corpus construction remain paused
+Resolved audit findings:
+- ordinary prose normalization damaged 11 training title frames and one validation title frame
+- shape-only heading matching introduced 969 false training boundaries
+- all five one-sided candidates were references, table fragments, or citation metadata
+- the original 28,475 summary differs by three from the reproducible 28,472-document released corpus
+- no heuristic boundary exceptions are used
 
-The tokenizer will still train on the entire normalized official training split only. The deterministic sampling and manifest design remains provisional until the article counts are proven.
+The test split remains uninspected. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Next implementation step
-Run the v7 notebook in Colab. Review the blank-neighbor summary and the likely-real unpadded candidates. Use that evidence to define one deterministic fallback, confirm exactly 28,475/60, add hard assertions, and relock D-054.
+Begin the next reviewable tokenizer chunk:
+1. choose and document the document-boundary special token
+2. train the 16,384-token byte-level BPE tokenizer on the full normalized pinned training split
+3. validate encode/decode behavior and special-token handling
+4. record the tokenizer files and checksum
+5. then construct the exact 20M-token sampled corpus and manifest
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.
