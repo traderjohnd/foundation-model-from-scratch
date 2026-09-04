@@ -457,7 +457,7 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 data-audit implementation is on `main` (merged through PR #3); final v8 Colab execution verification is still pending.**
+**Notebook 01 data preparation and corpus audit are complete and verified on `main`; the full v8 Colab run passed all assertions against the pinned dataset revision.**
 
 Locked evidence:
 1. dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
