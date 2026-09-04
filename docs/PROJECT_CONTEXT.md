@@ -131,7 +131,7 @@ Detailed teaching of context length is deferred until the training-objective/los
 
 Presentation should preserve the distinction:
 - context length does **not** change the next-token objective
-- context length changes how much prior information is available for each prediction
+- context length changes how much prior information is available to each prediction
 - it affects memory, compute, long-range dependency learning, and observed training behavior
 
 ## Training objective
@@ -198,7 +198,7 @@ look like in training behavior.
 
 ## Batch strategy
 - Effective batch size: **16,384 tokens per optimizer update**
-- With 512-token sequences, this is equivalent to roughly 32 sequences contributing to each optimizer update.
+- With 512-token sequences, this is equivalent to roughly 32 sequences contributing to each update.
 - Microbatch size may vary by model/GPU memory.
 - Use **gradient accumulation** to keep effective batch size constant.
 
@@ -404,7 +404,7 @@ Potential presentation spine:
 **Data → Architecture → Pretraining → Post-training → Context → Tools → Guardrails → Governance → Output**
 
 ## Repository structure
-Recommended structure:
+Current planned structure:
 
 ```text
 foundation-model-from-scratch/
@@ -416,12 +416,14 @@ foundation-model-from-scratch/
 │   └── presentation_notes.md
 │
 ├── notebooks/
-│   ├── 01_data_and_tokenizer.ipynb
-│   ├── 02_model_architecture.ipynb
-│   ├── 03_training_pipeline.ipynb
-│   └── 04_evaluation_and_scaling.ipynb
+│   ├── 01_data_preparation_and_corpus_audit.ipynb
+│   ├── 02_tokenizer_training_and_corpus_construction.ipynb
+│   ├── 03_model_architecture.ipynb
+│   ├── 04_training_pipeline.ipynb
+│   └── 05_evaluation_and_scaling.ipynb
 │
 ├── src/
+│   ├── data.py
 │   ├── tokenizer.py
 │   ├── model.py
 │   ├── train.py
@@ -444,6 +446,15 @@ foundation-model-from-scratch/
 └── checkpoints/
 ```
 
+Notebook boundaries are intentional:
+- **Notebook 01 — Data Preparation & Corpus Audit:** raw WikiText → verified normalized/reconstructed articles
+- **Notebook 02 — Tokenizer Training & Corpus Construction:** verified articles → tokenizer → exact 20M-token corpus
+- **Notebook 03 — Model Architecture:** tokenizer/corpus contract → decoder-only Transformer implementation
+- **Notebook 04 — Training Pipeline:** explicit PyTorch training/validation/checkpoint loop
+- **Notebook 05 — Evaluation & Scaling:** controlled model comparison and final evidence
+
+`src/data.py` is the canonical reusable implementation of the locked dataset loading, normalization, and article-reconstruction pipeline. Notebook 01 remains the completed audit artifact; Notebook 02 independently imports the shared implementation rather than relying on Notebook 01 kernel state.
+
 ## Documentation workflow
 Maintain two canonical documents:
 1. **PROJECT_CONTEXT.md** — concise project state and handoff context
@@ -457,16 +468,18 @@ Update them after major phases:
 - evaluation complete
 
 ## Current status
-**Notebook 01 data preparation and corpus audit are complete and verified on `main`; the full v8 Colab run passed all assertions against the pinned dataset revision.**
+**Notebook 01 data preparation and corpus audit are complete and verified. Notebook 02 Chunk 1 independently reproduces that audited corpus through the shared `src/data.py` implementation.**
 
-Locked evidence:
+Locked/reproduced evidence:
 1. dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
 2. immutable Hub revision: `b08601e04326c79dfdd32d625aee71d232d685c3`
 3. official rows: 1,801,350 train; 3,760 validation; 4,358 test
-4. structure-aware normalization: 17 tests and zero heading-level changes
+4. structure-aware normalization: 17 tests and zero heading-level changes in the Notebook 01 audit
 5. raw blank-padded reconstruction: 28,472 training documents and 60 validation documents
 6. hard article-count assertions tied to the pinned revision
 7. guarded `_fingerprint` values retained only as local diagnostics
+8. shared preprocessing source pinned in Notebook 02 to commit `7d300f14c812d9a1caf36aa9ec0568bee5b0f275`
+9. fresh Notebook 02 execution passed 17/17 normalization regression tests and independently reproduced 28,472 train / 60 validation articles
 
 Resolved audit findings:
 - ordinary prose normalization damaged 11 training title frames and one validation title frame
@@ -478,11 +491,13 @@ Resolved audit findings:
 The test split remains uninspected. Tokenizer training and 20M-token corpus construction have not started.
 
 ## Next implementation step
-Begin the next reviewable tokenizer chunk:
-1. choose and document the document-boundary special token
-2. train the 16,384-token byte-level BPE tokenizer on the full normalized pinned training split
-3. validate encode/decode behavior and special-token handling
-4. record the tokenizer files and checksum
-5. then construct the exact 20M-token sampled corpus and manifest
+Begin the next reviewable Notebook 02 chunk:
+1. lock D-055: choose and document the document-boundary/EOS special token
+2. verify literal special-token collision behavior and count literal `<unk>` occurrences in development-visible articles
+3. configure the 16,384-token byte-level BPE tokenizer
+4. train it on the full normalized pinned training split only
+5. validate encode/decode behavior and special-token handling
+6. record tokenizer files and checksum
+7. then construct the exact 20M-token sampled corpus and manifest
 
 Do not jump ahead. Continue in small, coherent, presentation-ready chunks.
