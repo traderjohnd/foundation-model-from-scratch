@@ -1,0 +1,33 @@
+{
+  "add_prefix_space": false,
+  "automatic_boundary_insertion": false,
+  "bos_token": null,
+  "byte_alphabet_size": 256,
+  "data_pipeline_revision": "7d300f14c812d9a1caf36aa9ec0568bee5b0f275",
+  "dataset": "Salesforce/wikitext",
+  "dataset_config": "wikitext-103-raw-v1",
+  "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "determinism_repeat_checksums_match": true,
+  "document_boundary_token": "<|endoftext|>",
+  "document_boundary_token_id": 0,
+  "first_training_seconds": 249.393,
+  "learned_merges": 16127,
+  "min_frequency": 2,
+  "padding": null,
+  "repeat_training_seconds": 296.475,
+  "special_tokens": [
+    "<|endoftext|>"
+  ],
+  "tokenizer_bytes": 486750,
+  "tokenizer_sha256": "6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f",
+  "tokenizers_version": "0.23.1",
+  "training_articles": 28472,
+  "training_split": "train",
+  "unk_token": null,
+  "use_regex": true,
+  "validation_articles": 60,
+  "validation_bytes_per_token": 4.3061435269449175,
+  "validation_characters_per_token": 4.297966708109393,
+  "validation_tokens_no_boundaries": 256579,
+  "vocab_size": 16384
+}
