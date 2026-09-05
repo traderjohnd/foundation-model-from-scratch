@@ -188,7 +188,7 @@ Keeps compute affordable while intentionally creating a regime where the larger 
 Supports discussion of model size vs token budget vs compute-optimal training.
 
 **Status / evidence**  
-Locked.
+Locked and implemented. Notebook 02 constructed exactly 20,000,000 tokens from the official training split: 19,995,397 text tokens plus 4,603 explicit document-boundary tokens. Canonical token-stream SHA-256: `4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa`.
 
 ---
 
@@ -207,7 +207,7 @@ If both data and model size changed, causal interpretation of performance differ
 Core experimental-design principle: control variables not being tested.
 
 **Status / evidence**  
-Locked.
+Locked. The canonical 20M-token corpus and reconstruction manifest now exist and are frozen for all three model runs.
 
 ---
 
@@ -231,7 +231,7 @@ The project is intended to reproduce the complete pretraining pipeline rather th
 Makes the pipeline genuinely start from raw text.
 
 **Status / evidence**  
-Locked.
+Locked and implemented in Notebook 02.
 
 ---
 
@@ -257,7 +257,7 @@ Provides efficient subword modeling while retaining robust byte-level coverage o
 Explicitly compare BERT/WordPiece—the user's original NLP reference point—with newer GPT-style byte-aware tokenization.
 
 **Status / evidence**  
-Locked.
+Locked and implemented. Production tokenizer has all 256 ByteLevel alphabet symbols and 16,127 learned merges.
 
 ---
 
@@ -289,7 +289,7 @@ Show that vocabulary size affects both parameter count and sequence efficiency:
 - smaller vocabulary → smaller matrices, potentially longer sequences and more attention compute
 
 **Status / evidence**  
-Locked.
+Locked and achieved exactly. The persisted production tokenizer has 16,384 total vocabulary entries including the sole registered special token.
 
 ---
 
@@ -313,7 +313,7 @@ Reasonable balance for small-model Colab training.
 Explain later that context length does not change the next-token objective or cross-entropy formula, but changes information available to each prediction, memory/compute requirements, and long-range dependency learning.
 
 **Status / evidence**  
-Locked. Detailed teaching deferred.
+Locked. Exact input/target packing around this context length remains a later training-pipeline decision; see D-058.
 
 ---
 
@@ -721,7 +721,7 @@ Preserve benchmark-defined held-out sets rather than force an arbitrary percenta
 Explicitly teach all three roles and explain why 80/10/10 is a rule of thumb, not a universal law.
 
 **Status / evidence**  
-Locked.
+Locked. Notebook 02 corpus construction used only the official training split; validation was used only for development-visible tokenizer diagnostics; test text remains uninspected/unencoded.
 
 ---
 
@@ -853,7 +853,7 @@ Controls stochasticity from initialization, shuffling, dropout, and related oper
 Explain reproducibility vs statistical significance.
 
 **Status / evidence**  
-Locked.
+Locked. Seed 42 is already used for the canonical deterministic training-article permutation.
 
 ---
 
@@ -1232,7 +1232,7 @@ Extracting `src/data.py` makes the verified loading/normalization/reconstruction
 The project structure itself demonstrates engineering discipline, artifact boundaries, reproducibility, and separation between executable evidence and reusable source code.
 
 **Status / evidence**  
-**Amended September 4, 2026.** D-048 was originally locked as a four-notebook structure. The revised five-notebook structure supersedes that numbering after Notebook 01 was deliberately frozen as **Data Preparation & Corpus Audit** and Notebook 02 was created as **Tokenizer Training & Corpus Construction**. `src/data.py` was extracted without refactoring the verified core logic. A fresh Notebook 02 execution passed the same 17 normalization regression tests and reproduced exactly 28,472 training articles and 60 validation articles through the shared module.
+**Amended September 4, 2026.** D-048 was originally locked as a four-notebook structure. The revised five-notebook structure supersedes that numbering after Notebook 01 was deliberately frozen as **Data Preparation & Corpus Audit** and Notebook 02 was created as **Tokenizer Training & Corpus Construction**. `src/data.py` was extracted without refactoring the verified core logic. Notebook 02 has now completed its tokenizer and exact-corpus responsibilities.
 
 ---
 
@@ -1265,7 +1265,7 @@ When to update canonical docs.
 **Selected choice**  
 Update after major phases:
 - planning complete
-- tokenizer complete
+- tokenizer/corpus complete
 - architecture complete
 - training complete
 - evaluation complete
@@ -1277,7 +1277,7 @@ Keeps new chats efficient and preserves the rationale while it is fresh.
 Ensures the final story is built continuously rather than reconstructed.
 
 **Status / evidence**  
-Locked.
+Locked. The tokenizer/corpus phase checkpoint was executed after Notebook 02 completion on September 5, 2026.
 
 ---
 
@@ -1307,7 +1307,7 @@ The tokenizer should learn natural punctuation instead of WikiText placeholders,
 Makes the preprocessing policy auditable and shows why structural markup must be separated from prose cleanup.
 
 **Status / evidence**  
-Locked. Seventeen normalization tests pass. The full v6 Colab run reported zero heading-level classification changes across train and validation, restored all 60 validation titles, and correctly normalized punctuation-leading titles and numeric en-dash ranges.
+Locked. Seventeen normalization tests pass. The full audit reported zero heading-level classification changes across train and validation, restored all 60 validation titles, and correctly normalized punctuation-leading titles and numeric en-dash ranges. Notebook 02 independently reran the same 17/17 tests through pinned `src/data.py`.
 
 ---
 
@@ -1331,7 +1331,7 @@ The tokenizer must exist before exact tokenizer-produced article counts can be c
 Separates tokenizer vocabulary learning from the controlled model-training compute budget.
 
 **Status / evidence**  
-Locked. Notebook 02 now independently reproduces the audited input articles through `src/data.py`; tokenizer training begins after the D-055 special-token contract is implemented and checked.
+Complete. Notebook 02 trained the production tokenizer on all 28,472 normalized/reconstructed official training articles only, using `tokenizers==0.23.1`. The persisted tokenizer has vocabulary size 16,384 and canonical SHA-256 `6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f`. Validation was excluded from tokenizer training and used only for held-out tokenizer-efficiency diagnostics; test text remains uninspected/unencoded.
 
 ---
 
@@ -1354,7 +1354,7 @@ Append one document-boundary token after each complete article and count it insi
 Makes the training-token claim precise and reproducible.
 
 **Status / evidence**  
-Locked; the corpus manifest will record boundary-token inclusion per article.
+Complete. The canonical corpus contains 19,995,397 text tokens and 4,603 explicit `<|endoftext|>` boundaries for exactly 20,000,000 tokens. The 4,604th and final selected article was truncated after 1,312 of its 4,410 text tokens, so its boundary was correctly omitted. Manifest boundary flags and the actual count of boundary token ID 0 agree exactly.
 
 ---
 
@@ -1384,28 +1384,191 @@ Raw structural detection prevents normalization from changing boundaries. Blank 
 Provides a concise three-cause audit story: normalization-damaged headings, shape-only false positives, and a published-summary versus released-corpus count discrepancy.
 
 **Status / evidence**  
-Locked. Hard assertions are tied to the immutable Hub revision. The implementation has now also been extracted to `src/data.py` and independently re-executed from Notebook 02: 17/17 normalization tests passed and article counts reproduced exactly at 28,472 train / 60 validation. Tokenizer training and corpus sampling may proceed.
+Complete. Notebook 02 reproduced 28,472 train / 60 validation articles, created the seed-42 permutation immediately before sampling, selected 4,604 article records, and produced exactly 20,000,000 tokens. Article-permutation SHA-256: `d4e368c0c22c1ea044133f7648466201450e66dc170da8ba67235fc1cd3b836c`. Canonical ordered-manifest SHA-256: `4a00196b39311a6c2e2790780e8fc43316f24a014d3d3649028b10a671f8d3fe`. Replaying the committed manifest with the persisted tokenizer reproduced exactly 20,000,000 tokens and corpus SHA-256 `4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa`.
+
+---
+
+## D-055 — Tokenizer special-token contract
+
+**Decision**  
+Which registered special tokens the project tokenizer uses and how document boundaries are represented.
+
+**Selected choice**  
+Use exactly one registered special token:
+- `<|endoftext|>` as the document-boundary / EOS marker
+- reserved inside the total 16,384-token vocabulary
+- token ID **0** in the trained production tokenizer
+
+Do not register:
+- PAD
+- BOS
+- UNK
+
+Do not automatically insert `<|endoftext|>` during ordinary encoding. Corpus construction appends it explicitly after each complete article, and D-053 counts it inside the exact 20M budget.
+
+**Rationale**  
+One explicit boundary token gives the causal LM a structural signal between independently reconstructed articles without requiring padding or a separate BOS convention. Byte-level coverage eliminates the need for an unknown-token fallback. Explicit rather than automatic insertion keeps corpus accounting auditable.
+
+**Alternatives considered**
+- separate BOS and EOS tokens
+- PAD token despite contiguous/fixed-length packing intent
+- UNK token despite complete byte coverage
+- automatic EOS insertion through a tokenizer post-processor
+- a differently named boundary token
+
+**Presentation relevance**  
+Useful GPT-style teaching point: familiar special-token naming does not imply inherited pretrained IDs, weights, or vocabulary. The token is structural, while learned BPE merges provide compression.
+
+**Status / evidence**  
+Locked and implemented. Literal `<|endoftext|>` collision audits found zero occurrences in all reconstructed train and development-visible validation articles. Literal `<unk>` occurrences were also zero. The production tokenizer has `<|endoftext|>` at ID 0, no padding, no truncation, no post-processor, and ordinary encoding does not auto-insert the boundary. Explicit boundary text is recognized atomically once. All 256 ByteLevel alphabet symbols are present.
+
+---
+
+## D-056 — BPE `min_frequency` stopping rule
+
+**Decision**  
+Set the minimum corpus frequency required for a pair to be eligible for another BPE merge.
+
+**Selected choice**  
+Use **`min_frequency=2`**.
+
+Operational interpretation for the pinned Hugging Face Tokenizers implementation:
+> **Stop BPE merge training when the best remaining pair occurs fewer than 2 times.**
+
+Frequency is aggregated across occurrences of GPT-2-regex/ByteLevel pre-tokenized units over the tokenizer-training corpus; it is not an independent per-article threshold.
+
+**Rationale**  
+A threshold of 2 is the smallest setting that materially rejects one-off pair patterns, preventing singleton evidence from consuming vocabulary capacity while still allowing the requested vocabulary to fill when sufficient repeated structure exists.
+
+Mental model:
+> **Vocabulary size controls how much compression capacity we allow. `min_frequency` controls how much evidence a pattern needs before it earns some of that capacity.**
+
+**Alternatives considered**
+- `min_frequency=1`, which is effectively non-restrictive for extant pairs
+- larger thresholds that might stop vocabulary growth earlier
+- no explicit threshold
+
+**Presentation relevance**  
+Shows that BPE vocabulary size is a target capacity, while the frequency threshold is an evidence requirement for earning merge slots.
+
+**Status / evidence**  
+Locked and empirically confirmed. With vocabulary size 16,384, one special token, and the seeded 256-byte alphabet, production training learned exactly **16,127 merges** and filled the vocabulary completely; therefore `min_frequency=2` did not bind early. A repeated production training run in the same pinned environment produced identical compact serialized SHA-256. Canonical persisted tokenizer SHA-256: `6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f`.
+
+Reproducibility wording should remain conservative: the pinned implementation uses deterministic alphabet ordering and pair-ID tie-breaking, and the repeated identical serialization is empirical same-environment evidence, not a claim of universal cross-platform determinism.
+
+---
+
+## D-057 — Corpus artifact persistence and reproducibility
+
+**Decision**  
+Whether to commit the generated 20M-token binary directly to Git or commit compact provenance sufficient to regenerate it.
+
+**Selected choice**  
+Materialize the canonical token stream as raw little-endian `uint16` during Notebook 02, hash those exact raw bytes, but **do not commit the 40 MB binary to Git**.
+
+Commit instead:
+- `results/corpus/corpus_summary.json`
+- `results/corpus/corpus_manifest.jsonl`
+
+The canonical token-stream identity is SHA-256 over the raw little-endian `uint16` token-ID bytes in corpus order, independent of NumPy `.npy` headers or ZIP/container metadata.
+
+**Rationale**  
+Every token ID fits in `uint16` because the vocabulary is only 16,384 entries. The 20M-token raw representation is therefore exactly 40,000,000 bytes, but it is fully regenerable from the pinned dataset revision, pinned preprocessing, persisted tokenizer checksum, seed, and ordered manifest. Committing the large derived binary adds repository weight without adding information.
+
+**Alternatives considered**
+- commit a ~40 MB `uint16` binary
+- commit an ~80 MB `int32` representation
+- commit only a checksum with no article-level manifest
+- store a compressed archive whose container metadata would become part of the identity
+
+**Presentation relevance**  
+Demonstrates the difference between a canonical reproducibility artifact and a large generated training artifact. It also provides a concrete example of content hashing and replay-based verification.
+
+**Status / evidence**  
+Locked and implemented. Raw token bytes: 40,000,000. Corpus SHA-256: `4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa`. Manifest SHA-256: `4a00196b39311a6c2e2790780e8fc43316f24a014d3d3649028b10a671f8d3fe`. Manifest-driven replay reconstructed exactly 20,000,000 tokens and the identical corpus checksum.
+
+---
+
+## D-058 — 512-token input/target packing edge policy
+
+**Decision**  
+How the exact 20M-token corpus will later be converted into fixed-length next-token training examples when the corpus length is not evenly divisible by the 512-token context length.
+
+**Observed constraint**  
+`20,000,000 mod 512 = 256`.
+
+**Selected choice**  
+**Deferred to the training-data/training-pipeline phase. Preserve all 20,000,000 corpus tokens now and do not silently discard the final 256-token remainder.**
+
+The later implementation must explicitly define the input/target shift and block-stride convention before determining how many corpus positions become model inputs and prediction targets. The 256-token arithmetic remainder alone does **not** prove that exactly 256 prediction targets must be discarded; that depends on the packing scheme.
+
+**Rationale**  
+Corpus membership and model-example packing are separate contracts. Notebook 02 answers which 20M tokens belong to the experiment. The later training pipeline answers how those tokens map into 512-token inputs and shifted labels. Conflating the two would make the “20M-token corpus” claim ambiguous.
+
+**Alternatives to evaluate later**
+- drop an incomplete final training block
+- allow a shorter final example with an explicit masking policy
+- use a packing/stride convention that overlaps the token needed for next-token labels across adjacent blocks
+- another explicit deterministic scheme that preserves the controlled corpus definition
+
+**Presentation relevance**  
+Excellent example of why apparently simple implementation details can change the true number of optimization targets and therefore must be documented in controlled experiments.
+
+**Status / evidence**  
+Open implementation decision carried forward to Notebook 04 / training-data construction. Notebook 02 intentionally preserves the complete 20,000,000-token stream and records the 256-token arithmetic remainder.
 
 ---
 
 # Current project state
 
-**Notebook 01 — Data Preparation & Corpus Audit is complete and verified. Notebook 02 — Tokenizer Training & Corpus Construction has passed its first independent-reproduction chunk through `src/data.py`.**
+**Notebook 01 — Data Preparation & Corpus Audit and Notebook 02 — Tokenizer Training & Corpus Construction are complete and verified.**
 
-D-006, D-051, and D-054 remain locked with immutable upstream provenance, full-data normalization evidence, and hard 28,472/60 article-count assertions. The reusable implementation is now canonical in `src/data.py`, and Notebook 02 pins that source revision so the preprocessing transformation cannot silently drift. A fresh Notebook 02 execution passed all 17 normalization regression tests and reproduced exactly 28,472 training articles and 60 validation articles without relying on Notebook 01 kernel state.
+Notebook 01 established the immutable dataset, structure-aware normalization, and article-reconstruction contract. Notebook 02 independently reproduced that contract through pinned `src/data.py`, trained and persisted the from-scratch byte-level BPE tokenizer, and deterministically constructed the exact controlled 20M-token model-training corpus.
 
-The test split remains uninspected. Tokenizer training and 20M-token corpus construction have not started.
+Canonical completed evidence:
+- dataset: `Salesforce/wikitext`, `wikitext-103-raw-v1`
+- immutable Hub revision: `b08601e04326c79dfdd32d625aee71d232d685c3`
+- official rows: 1,801,350 train; 3,760 validation; 4,358 test
+- 17/17 normalization regression tests
+- 28,472 reconstructed training articles / 60 validation articles
+- tokenizer training: normalized official train only
+- tokenizer vocabulary: 16,384
+- byte alphabet: 256/256
+- learned merges: 16,127
+- sole registered special token: `<|endoftext|>` at ID 0
+- tokenizer SHA-256: `6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f`
+- exact corpus: 20,000,000 tokens from official train only
+- selected article records: 4,604
+- included text tokens: 19,995,397
+- included boundaries: 4,603
+- article-permutation SHA-256: `d4e368c0c22c1ea044133f7648466201450e66dc170da8ba67235fc1cd3b836c`
+- corpus token-stream SHA-256: `4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa`
+- manifest SHA-256: `4a00196b39311a6c2e2790780e8fc43316f24a014d3d3649028b10a671f8d3fe`
+- manifest replay reproduced exactly 20,000,000 tokens and the same corpus checksum
+- raw 40 MB corpus binary intentionally omitted from Git because it is exactly reproducible
+- official test text remains uninspected/unencoded
+
+Repository artifacts now include:
+- `results/tokenizer/tokenizer.json`
+- `results/tokenizer/tokenizer_metadata.json`
+- `results/corpus/corpus_summary.json`
+- `results/corpus/corpus_manifest.jsonl`
 
 ## Immediate next step
 
-Begin the next reviewed Notebook 02 chunk:
-1. lock D-055 for the document-boundary/EOS special token
-2. verify literal boundary-token collision behavior and count literal `<unk>` occurrences in development-visible articles
-3. configure the 16,384-token byte-level BPE tokenizer
-4. train on the full normalized pinned training split only
-5. validate tokenizer behavior and save its checksum
-6. construct the fixed 20M-token article-sampled corpus and manifest
-7. preserve official validation/test splits for their intended roles
+**Start Notebook 03 — Model Architecture in a new chat/context window.**
+
+Notebook 03 begins from the frozen tokenizer/corpus contract and should proceed in small reviewable chunks:
+1. freeze exact model configurations and parameter-count targets
+2. implement/test RMSNorm
+3. implement/test RoPE
+4. implement causal multi-head self-attention
+5. implement/test SwiGLU
+6. assemble the pre-norm decoder block and full language model
+7. tie input/output embeddings
+8. verify causal behavior, tensor shapes, initialization, and exact parameter counts for Models A/B/C
+
+Do not begin the training loop in Notebook 03. Input/target packing and optimization remain Notebook 04 responsibilities, including resolution of D-058.
 
 ## Rule for future work
 Continue in small, coherent chunks. Each major technical decision should be:
