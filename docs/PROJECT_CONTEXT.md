@@ -1,7 +1,7 @@
 # Building a Foundation Model from Scratch — Project Context
 
 ## Purpose
-This is the concise source of truth for the project so a new chat can resume without reconstructing prior work.
+This is the concise source of truth for resuming the project without reconstructing prior chats.
 
 GitHub repository: `traderjohnd/foundation-model-from-scratch`
 
@@ -14,14 +14,21 @@ Experimental question:
 Higher-level question:
 > **At what point does increasing model capacity produce diminishing returns when training data and compute are constrained?**
 
-This project covers **pretraining from scratch**. Fine-tuning an existing stronger open-weight model is a separate later project.
+This project covers pretraining from scratch. Fine-tuning an existing stronger open-weight model is a separate later project.
 
 ## Canonical notebook sequence
 - **Notebook 01 — Data Preparation & Corpus Audit** — complete
 - **Notebook 02 — Tokenizer Training & Corpus Construction** — complete
 - **Notebook 03 — Model Architecture** — complete
-- **Notebook 04 — Training Pipeline** — next
+- **Notebook 04 — Training Pipeline** — active; pipeline and LR selection complete, production accelerator preflight next
 - **Notebook 05 — Evaluation & Scaling** — later
+
+## Canonical documentation
+- `docs/PROJECT_CONTEXT.md` — concise current state
+- `docs/DECISION_REGISTER.md` — original detailed decision register through the pre-Notebook-04 transition
+- `docs/NOTEBOOK04_DECISIONS.md` — Notebook 04 decision continuation, D-058 onward
+
+The two decision files together form the current detailed project record until they are consolidated after the training phase.
 
 ## Data contract
 Dataset: `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`.
@@ -48,7 +55,6 @@ Training corpus:
 - final selected article truncated after 1,312 of 4,410 text tokens; its boundary omitted
 
 Canonical hashes:
-- dataset Hub revision: `b08601e04326c79dfdd32d625aee71d232d685c3`
 - tokenizer SHA-256: `6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f`
 - article permutation SHA-256: `d4e368c0c22c1ea044133f7648466201450e66dc170da8ba67235fc1cd3b836c`
 - corpus token-stream SHA-256: `4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa`
@@ -60,13 +66,8 @@ Canonical corpus artifacts:
 
 The 40 MB little-endian `uint16` raw token binary is intentionally not committed because the committed provenance artifacts reproduce it exactly.
 
-Official validation is development-visible. Official test remains untouched until final evaluation.
-
 ## Tokenizer contract
-Tokenizer was trained from scratch on the entire normalized official training split only.
-
-Configuration:
-- byte-level BPE
+- byte-level BPE trained from scratch on the full normalized official training split only
 - `tokenizers==0.23.1`
 - vocabulary: exactly 16,384 total tokens
 - `min_frequency=2`
@@ -74,29 +75,14 @@ Configuration:
 - ByteLevel decoder
 - all 256 byte symbols present
 - learned merges: 16,127
+- sole registered special token: `<|endoftext|>` at ID 0
+- no PAD / BOS / UNK
+- ordinary encoding does not auto-insert the boundary token
 
-Special-token contract:
-- sole registered special token: `<|endoftext|>`
-- token ID: 0
-- no PAD
-- no BOS
-- no UNK
-- ordinary encoding does not auto-insert the boundary
+Validation tokenizer count without appended boundaries: 256,579 tokens.
 
-Canonical tokenizer artifacts:
-- `results/tokenizer/tokenizer.json`
-- `results/tokenizer/tokenizer_metadata.json`
-
-Tokenizer efficiency on all 60 development-visible validation articles, without appended boundaries:
-- 256,579 tokens
-- ~4.298 characters/token
-- ~4.306 UTF-8 bytes/token
-
-## Notebook 03 — final implemented architecture evidence
-Canonical notebook:
-- `notebooks/03_model_architecture.ipynb`
-
-Architecture family is now **implemented and empirically validated**, not provisional.
+## Architecture contract
+Canonical reusable module: `src/model.py`.
 
 | Setting | Model A | Model B | Model C |
 |---|---:|---:|---:|
@@ -110,137 +96,128 @@ Architecture family is now **implemented and empirically validated**, not provis
 Implemented architecture:
 - learned token embeddings
 - causal standard multi-head self-attention
-- RoPE applied to Q and K only
+- RoPE on Q/K only
 - RMSNorm
 - SwiGLU
 - pre-norm residual blocks
 - final RMSNorm
 - tied token-embedding / LM-head weights
 - bias-free linear projections
-- dropout = 0.10
+- dropout 0.10
+- context length 512
 - no learned positional embedding table
-- context length = 512
 
-Exact per-block parameter evidence:
-- Model A block: 803,328
-- Model B block: 1,770,240
-- Model C block: 3,138,560
-
-Attention parameters per block:
-- A: 262,144
-- B: 589,824
-- C: 1,048,576
-
-SwiGLU parameters per block:
-- A: 540,672
-- B: 1,179,648
-- C: 2,088,960
-
-Weight tying is verified as the same `Parameter` object and same underlying storage. For Model A it avoids duplicating a 4,194,304-parameter vocabulary matrix.
-
-### RoPE validation
-- zero learned parameters
-- position-0 rotation is identity
-- norm preservation validated numerically
-- equal relative displacement produces matching rotated Q/K dot products within floating-point tolerance
-- all models use head dimension 64 and context 512
-
-### Causality validation
-Causal attention masking was verified directly:
-- future attention probability mass = 0
-- changing a future token leaves all earlier attention outputs unchanged
-- the same property holds through a full Transformer block and the complete language model
-
-### Initialization policy — implemented and validated
-Base initialization:
-- embeddings and ordinary linear weights: `Normal(0, 0.02)`
+Initialization:
+- base embedding/linear weights: `Normal(0, 0.02)`
 - RMSNorm scales: 1.0
+- attention-output and SwiGLU-down residual projections: `0.02 / sqrt(2L)`
+- seed: 42
 
-Residual-output projections:
-`0.02 / sqrt(2L)`
+Notebook 03 causality, initialization, parameter-count, tying, forward, and backward audits all passed.
 
-Resulting targets:
-- Model A: 0.007071
-- Model B: 0.005774
-- Model C: 0.005000
+## Notebook 04 — locked training-data behavior
+Causal packing:
+- context length 512
+- stride 512
+- `x=tokens[start:start+512]`
+- `y=tokens[start+1:start+513]`
+- complete fixed-length examples only
+- no padding, wraparound, duplicate tail, or variable final example
 
-The residual-scaled matrices are:
-- attention output projection
-- SwiGLU down projection
+Exact training arithmetic:
+- 39,062 causal examples/epoch
+- 19,999,744 scored targets/epoch
+- 255 final target positions intentionally omitted by the fixed-length packing rule
 
-Same-seed initialization with seed 42 reproduced identical checked weights. Weight tying and parameter counts remained intact after initialization.
+Logical effective batch:
+- 16,384 prediction targets/update
+- 32 full 512-token sequences/update
+- physical micro-batch is hardware-dependent
+- final epoch update flushes the remaining 22 sequences = 11,264 targets
+- 1,221 optimizer updates/epoch
 
-### Final architecture audit
-The executed Notebook 03 final audit passed all assertions for Models A/B/C:
-- exact dimensions and layer counts
-- exact parameter counts
-- RoPE parameter-free
-- no learned positional embedding table
-- RMSNorm count/placement
-- all linear biases disabled
-- dropout fixed at 0.10
-- tied embedding/output weights
-- initialization policy
-- finite forward logits
-- context-length enforcement
-- causal behavior
-- backward/autograd flow
-
-Synthetic next-token backward sanity check on untrained Model A:
-- cross-entropy loss: **9.693123**
-- finite, nonzero gradients verified through:
-  - tied embedding/LM head
-  - attention Q projection
-  - attention output projection
-  - SwiGLU gate projection
-  - SwiGLU down projection
-  - final RMSNorm
-
-This backward test is an architecture/autograd sanity check, not a training result.
-
-## Training controls already locked for Notebook 04
-Objective:
-- autoregressive causal language modeling / next-token prediction
-
-Loss:
-- cross-entropy
-- perplexity = `exp(loss)`
-
+## Notebook 04 — optimizer and numerical policy
 Optimizer:
 - AdamW
-
-Learning-rate probe on Model A:
-- `1e-4`
-- `3e-4`
-- `1e-3`
-- provisional expected production peak ~`3e-4`
-
-Schedule:
-- warmup + cosine decay
-
-Effective batch:
-- 16,384 tokens per optimizer update
-- approximately 32 × 512-token sequences
-- gradient accumulation as needed to hold effective batch constant
-
-Training duration:
-- maximum 3 epochs
-- retain best validation checkpoint
-
-Validation cadence:
-- every 200 optimizer steps
-- plus end of each epoch
-
-Precision:
-- BF16 preferred
-- FP16 fallback
-- FP32 retained where numerically appropriate
+- betas `(0.9, 0.95)`
+- epsilon `1e-8`
+- weight decay 0.10 for `ndim >= 2`
+- no decay for RMSNorm scale parameters
+- tied parameters deduplicated safely
 
 Gradient clipping:
 - global norm 1.0
 
-Seed:
-- 42
+Precision:
+- CUDA + native BF16 → BF16 autocast, no GradScaler
+- CUDA without native BF16 → FP16 autocast + GradScaler
+- CPU → FP32 smoke fallback only
+- model/master parameters remain FP32
+
+Tesla T4 evidence:
+- compute capability 7.5
+- native BF16: false
+- resolved runtime: FP16 + GradScaler
+- Model A physical micro-batch 32 sequences
+- Model A real optimizer smoke peak allocation approximately 4.94 GiB
+
+## Learning-rate schedule
+Production schedule:
+- maximum epochs: 3
+- scheduled optimizer updates: 3,663
+- warmup fraction: 5%
+- warmup updates: 183
+- cosine-decay updates: 3,480
+- final/minimum LR: 10% of peak
+- scheduler clock: optimizer updates, never micro-batches
+
+## Learning-rate experiment — completed
+Original Model A candidates:
+- `1e-4`
+- `3e-4`
+- `1e-3`
+
+Because `1e-3` won at the upper boundary, the probe was refined with:
+- `2e-3`
+- `3e-3`
+
+All runs used the same initialization, data order, RNG restart, optimizer settings, precision policy, logical batch, clipping, 400 optimizer updates, and validation at updates 200 and 400.
+
+Observed results:
+
+| Peak LR | Val loss @200 | Val loss @400 | PPL @400 | Clip fraction |
+|---:|---:|---:|---:|---:|
+| `1e-4` | 7.067461 | 6.799811 | 897.68 | 28.7% |
+| `3e-4` | 6.394534 | 6.163024 | 474.86 | 10.5% |
+| `1e-3` | 5.988447 | 5.659233 | 286.93 | 6.5% |
+| `2e-3` | 5.884712 | **5.488027** | **241.78** | 5.0% |
+| `3e-3` | 6.159744 | 5.741478 | 311.52 | 4.5% |
+
+**Locked production peak LR: `2e-3`.**
+
+Rationale: `2e-3` produced the lowest validation loss at update 400 and lies below the highest tested value (`3e-3`), so the useful region is bracketed on the upper side.
+
+Official test content was not used for LR selection.
+
+## Validation contract
+- official validation split only
+- same pinned preprocessing and tokenizer
+- original article order
+- one boundary after every complete validation article
+- validation articles: 60
+- validation stream: 256,639 tokens
+- causal examples: 501
+- scored validation targets: 256,512
+- no shuffle
+- full summed cross-entropy divided by exact target count
+
+Official test content remains reserved for final evaluation.
+
+## Training duration and checkpoint policy
+- maximum 3 epochs/model
+- validation every 200 optimizer updates plus end-of-epoch
+- retain the best validation checkpoint
+- identical corpus, objective, optimizer family, LR schedule, logical effective batch, and seed across Models A/B/C
 
 Resource metrics to capture:
 - GPU type
@@ -252,30 +229,38 @@ Resource metrics to capture:
 - total token exposures
 - estimated cost
 
-## Open Notebook 04 decision: packing
-The exact corpus length is 20,000,000 tokens and:
+## Current verified Notebook 04 checkpoints
+- D-058 causal packing: PASS
+- D-059 final partial effective batch: PASS
+- D-060 micro-batch gradient equivalence: PASS
+- D-061 native-BF16 / FP16 policy: PASS
+- D-062 AdamW grouping: PASS
+- D-063 scheduler: PASS
+- D-064 LR-probe protocol: PASS
+- D-065 validation pipeline: PASS
+- D-066 single-run training engine: PASS
+- D-067 `src/model.py` integration: PASS
+- D-068 canonical corpus reconstruction/checksum gate: PASS
+- D-069 real Model A optimizer smoke: PASS
+- D-070 initial LR probe: PASS
+- D-071 boundary-refined LR selection: PASS; production peak LR locked at `2e-3`
 
-`20,000,000 mod 512 = 256`
+## Immediate next step
+Run **D-072 — Production accelerator micro-batch preflight** for Models A/B/C on the active T4 GPU.
 
-Notebook 02 preserves all 20M tokens. Do not silently discard the final 256-token remainder.
+The logical effective batch must remain fixed at 32 sequences / 16,384 targets. D-072 only determines the largest physical micro-batch that fits each model. Do not launch the three full production runs until the D-072 result is reviewed.
 
-Notebook 04 must explicitly resolve D-058 by defining:
-- input/target shift
-- fixed-length packing rule
-- stride/block convention
-- treatment of any final incomplete example
-- exact number of model inputs and prediction targets
-
-The 256-token arithmetic remainder alone does not imply that exactly 256 prediction targets must be dropped.
+After D-072, implement the production-run wrapper with:
+- peak LR `2e-3`
+- maximum 3 epochs
+- 3,663 scheduled updates
+- validation every 200 updates plus epoch end
+- best-validation checkpoint retention
+- per-model measured physical micro-batch
+- throughput/memory/time accounting
 
 ## Implementation philosophy
-Use explicit PyTorch model and training code. Do not use a pretrained Transformer model or Hugging Face `Trainer` for the main implementation.
-
-Mature infrastructure is appropriate for commodity functions:
-- PyTorch
-- Hugging Face Datasets
-- Hugging Face Tokenizers
-- Google Colab
+Use explicit PyTorch model and training code. Do not use a pretrained model or Hugging Face `Trainer` for the main implementation.
 
 Key statement:
 > **From scratch does not mean without libraries; it means the learned model, tokenizer, architecture, and training process are not inherited from a pretrained model.**
@@ -294,49 +279,10 @@ Teach:
 - pre-norm residual blocks
 - weight tying and parameter efficiency
 - vocabulary size vs embedding cost / sequence compression
+- learning-rate probing as empirical optimization rather than copied defaults
 
 Systems-level thesis:
 > **Autoregressive next-token prediction is the base training/generation mechanism, but it is not a complete description of modern AI-system behavior.**
 
 Potential stack:
 **Data → Architecture → Pretraining → Post-training → Context → Tools → Guardrails → Governance → Output**
-
-## Repository structure
-```text
-foundation-model-from-scratch/
-├── README.md
-├── docs/
-│   ├── PROJECT_CONTEXT.md
-│   ├── DECISION_REGISTER.md
-│   └── presentation_notes.md
-├── notebooks/
-│   ├── 01_data_preparation_and_corpus_audit.ipynb
-│   ├── 02_tokenizer_training_and_corpus_construction.ipynb
-│   ├── 03_model_architecture.ipynb
-│   ├── 04_training_pipeline.ipynb
-│   └── 05_evaluation_and_scaling.ipynb
-├── src/
-├── configs/
-├── results/
-├── figures/
-└── checkpoints/
-```
-
-## Current status
-**Notebooks 01, 02, and 03 are complete and verified.**
-
-Notebook 03 final canonical evidence:
-- Model A: 7,407,872 parameters
-- Model B: 16,913,280 parameters
-- Model C: 33,497,600 parameters
-- full architecture audit: PASS
-- synthetic next-token backward/autograd audit: PASS
-
-## Immediate next step
-**Start Notebook 04 — Training Pipeline in a NEW context window.**
-
-The new chat should begin from the canonical `docs/PROJECT_CONTEXT.md` and `docs/DECISION_REGISTER.md` in GitHub and proceed in small, reviewable chunks.
-
-Notebook 04 begins by resolving D-058 and implementing deterministic causal input/target packing before building batching, optimizer/scheduler, mixed precision, gradient accumulation, validation, checkpointing, and the explicit PyTorch training loop.
-
-Do not continue Notebook 04 in this context window.
