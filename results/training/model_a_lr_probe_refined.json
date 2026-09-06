@@ -1,0 +1,55 @@
+{
+  "experiment": "model_a_learning_rate_probe_with_boundary_refinement",
+  "model": "A",
+  "model_parameters": 7407872,
+  "seed": 42,
+  "precision": "fp16",
+  "gpu_name": "Tesla T4",
+  "logical_effective_batch_targets": 16384,
+  "updates_per_candidate": 400,
+  "validation_updates": [200, 400],
+  "validation_targets": 256512,
+  "candidates": [
+    {
+      "peak_lr": 0.0001,
+      "val_loss_200": 7.067461,
+      "val_loss_400": 6.799811,
+      "val_perplexity_400": 897.68,
+      "clip_fraction": 0.287
+    },
+    {
+      "peak_lr": 0.0003,
+      "val_loss_200": 6.394534,
+      "val_loss_400": 6.163024,
+      "val_perplexity_400": 474.86,
+      "clip_fraction": 0.105
+    },
+    {
+      "peak_lr": 0.001,
+      "val_loss_200": 5.988447,
+      "val_loss_400": 5.659233,
+      "val_perplexity_400": 286.93,
+      "clip_fraction": 0.065
+    },
+    {
+      "peak_lr": 0.002,
+      "val_loss_200": 5.884712,
+      "val_loss_400": 5.488027,
+      "val_perplexity_400": 241.78,
+      "clip_fraction": 0.05
+    },
+    {
+      "peak_lr": 0.003,
+      "val_loss_200": 6.159744,
+      "val_loss_400": 5.741478,
+      "val_perplexity_400": 311.52,
+      "clip_fraction": 0.045
+    }
+  ],
+  "overall_winner_peak_lr": 0.002,
+  "largest_tested_peak_lr": 0.003,
+  "lr_region_bracketed": true,
+  "selected_production_peak_lr": 0.002,
+  "selection_rule": "lowest validation loss at update 400; tie -> lower validation loss at 200; tie -> lower peak LR",
+  "test_split_content_used": false
+}
