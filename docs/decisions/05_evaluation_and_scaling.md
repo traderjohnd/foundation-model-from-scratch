@@ -49,6 +49,14 @@ Some evaluation decisions were made during project planning and therefore retain
 
 The official test split remains untouched at Notebook 05 start.
 
+---
+
+## D-084 — Evaluation scope, frozen-input boundary, and evidence/analysis separation
+**Selected choice:** Notebook 05 is a standalone reader-facing analytical report built from immutable Notebook 04 outputs. Models A/B/C, their training protocol, checkpoints, and histories are frozen inputs: no retraining, retuning, or hyperparameter changes occur in Notebook 05. The notebook explicitly separates collected evidence from interpretation. Raw measurements, provenance, and audit details live in a dedicated appendix/reference layer; the main numbered sections contain the analytical narrative: evaluation framework, quality scaling, compute scaling, diminishing returns, controlled generation, final untouched-test evaluation, and synthesis. The official test split remains sealed until the designated final-evaluation section.  
+**Why:** Mixing raw run output with interpretation makes the experiment harder to audit and harder to communicate. Separating the evidence layer from the analytical layer preserves provenance while allowing the reader to follow the experimental argument cleanly. Freezing Notebook 04 prevents post-hoc tuning from contaminating the controlled scaling comparison. A stable numbered structure also makes Notebook 05 directly referenceable from the final presentation.  
+**Alternatives considered:** interleave raw measurements and commentary chronologically; treat Notebook 05 as a collection of analysis cells without a standalone narrative; allow additional tuning during evaluation.  
+**Presentation relevance:** presentation figures and claims can cite stable Notebook 05 sections while the appendix supplies exact supporting measurements and provenance.
+
 ## Next decision ID
 
-The first new evaluation decision must be **D-084**.
+The next new evaluation decision is **D-085**.
