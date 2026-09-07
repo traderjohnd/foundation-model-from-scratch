@@ -1,0 +1,101 @@
+[
+  {
+    "model":"A",
+    "prompt_id":1,
+    "validation_example_index":20,
+    "seed":43,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"echsler School in 1894, two Carnegie libraries in 1913, and the Threefoot Building, Meridian's tallest skyscraper, in 1929.\nThe city continued to grow thanks to a commission government's efforts",
+    "continuation_text":" to attract the city's chiefs and recruiting a larger district. The city's houses had three rooms, a larger tower, and a tall tower. The city's executive offices were open to the City of West Hamlet, and the building was sold for $3.25 million. At the time, the city had been a major figure, having been the city's first home in the city. A significant increase in public interest was the end of the decades, which included"
+  },
+  {
+    "model":"A",
+    "prompt_id":2,
+    "validation_example_index":200,
+    "seed":44,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"af Dam.\nMount Elbert is composed largely of quartzite. However, the summit ridge consists of metamorphic basement rock, which is Pre-Cambrian in origin and about 1.7 billion years old.",
+    "continuation_text":" The area of the region is the Kainhead of the Nestrian, but is not a major component of the area, but this region is also a major part of the Gainhead Plate.\n\n= = Escape = =\n\nThe Kainhead Plate, a semester of steep-section, is the second-largest in the area between the Nestrian and Gainhead Plate. The central Mormara Plate is the most popular"
+  },
+  {
+    "model":"A",
+    "prompt_id":3,
+    "validation_example_index":400,
+    "seed":45,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" with Ward Churchill: Historical and Current Perspectives \". Z Magazine.)\nIn 1996, Churchill moved to the new Ethnic Studies Department of the University of Colorado. In 1997, he was promoted to full professor. He was selected as",
+    "continuation_text":" a member of the College of Science and Sciences, the University of Colorado and C.H.P. (September 2008). His other major graduate programs took place at the age of 20, and he became a member of the University of California.\n\n= = College of law = =\n\n\n= = = Appearances = = =\n\nMore than a 2000 student in New York City, L.H.P. (1954). The University of"
+  },
+  {
+    "model":"B",
+    "prompt_id":1,
+    "validation_example_index":20,
+    "seed":43,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"echsler School in 1894, two Carnegie libraries in 1913, and the Threefoot Building, Meridian's tallest skyscraper, in 1929.\nThe city continued to grow thanks to a commission government's efforts",
+    "continuation_text":" to raise the city's status. A number of residents were reorganized in 1929, with the town's third-largest area in the city. Many of the city's buildings were built in the town. The town was also built at an open industrial center, which would also carry the historic residential neighborhood of Mauhpur to the northeast. The city was built around the town of Mauhpur, and the town was known as Mauhpur. A small"
+  },
+  {
+    "model":"B",
+    "prompt_id":2,
+    "validation_example_index":200,
+    "seed":44,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"af Dam.\nMount Elbert is composed largely of quartzite. However, the summit ridge consists of metamorphic basement rock, which is Pre-Cambrian in origin and about 1.7 billion years old.",
+    "continuation_text":" The centerpiece of the project was composed of two perturbations: a mafia and a cafia, a mafia, a boat, and a tripod to the southwest of the highway to the northeast. The road was originally built in 1775 by Richard Spotton and included in the 1930 renumbering of state highways. This new road is maintained by the National Highway Administration, the National Highway Administration, and the National Highway Administration.\nThe highway"
+  },
+  {
+    "model":"B",
+    "prompt_id":3,
+    "validation_example_index":400,
+    "seed":45,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" with Ward Churchill: Historical and Current Perspectives \". Z Magazine.)\nIn 1996, Churchill moved to the new Ethnic Studies Department of the University of Colorado. In 1997, he was promoted to full professor. He was selected as",
+    "continuation_text":" a member of the Society of America (RNA). He graduated from the University of California at the age of eleven, and served as an engineering lecturer at the University of Utah. In 1996 he was a member of the University of Missouri, and became a professor at Stanford University of Colorado. In 1996, he returned to the United States to study and study studies at the University of California and a second-class research university at San Diego.\nIn 1996, he was promoted"
+  },
+  {
+    "model":"C",
+    "prompt_id":1,
+    "validation_example_index":20,
+    "seed":43,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"echsler School in 1894, two Carnegie libraries in 1913, and the Threefoot Building, Meridian's tallest skyscraper, in 1929.\nThe city continued to grow thanks to a commission government's efforts",
+    "continuation_text":" to expand the city's docks to a market, and construction of the temporary warehouse and construction of the new city's outer store. The city has a large street infrastructure and retail offices, including one of the most complex in the town and the rest of the town. The district has several separate-scale commercial and public facilities including the River Chunks and the River Parade.\n\n= = = Arts = = =\n\nLondon is a principal city in"
+  },
+  {
+    "model":"C",
+    "prompt_id":2,
+    "validation_example_index":200,
+    "seed":44,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":"af Dam.\nMount Elbert is composed largely of quartzite. However, the summit ridge consists of metamorphic basement rock, which is Pre-Cambrian in origin and about 1.7 billion years old.",
+    "continuation_text":" The main feature of the ridge consists of two main stages. The ridge consists of two, each with a small area of 1,000 square kilometres (5,000 square miles) at the eastern end.\n\n= = Ecology = =\n\nThe ridge of the ridge's surroundings and is very much of the ridge between the ridge, which includes the ridge of the ridge to the west, which is flanked by a ridge of high tens of higher tides"
+  },
+  {
+    "model":"C",
+    "prompt_id":3,
+    "validation_example_index":400,
+    "seed":45,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" with Ward Churchill: Historical and Current Perspectives \". Z Magazine.)\nIn 1996, Churchill moved to the new Ethnic Studies Department of the University of Colorado. In 1997, he was promoted to full professor. He was selected as",
+    "continuation_text":" a member of the committee in 2000, and became an adjunct professor in 1999.\n\n= = = United States Senate = = =\n\nOn November 7, 2000, Eisenhower announced his candidacy in the Senate for the seat, and was the first woman to hold a seat in the U.S. House of Representatives.\n\n= = = First term (2005) = = =\n\nIn 1999, Congress approved the Senate's decision to form a new platform"
+  }
+]

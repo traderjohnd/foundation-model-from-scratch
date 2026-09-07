@@ -119,6 +119,21 @@ The official test split remained untouched until D-092 / Section 7.
 **Why:** Preserves the causal interpretation of the controlled scaling experiment while creating a clean handoff to follow-on exploration.  
 **Presentation relevance:** provides the final bounded claims, limitations, and reusable summary for the presentation.
 
+---
+
+## Artifact recovery provenance note — 2026-09-07
+
+The stable Notebook 05 repository artifacts required by D-085 were found to be absent from `main` even though the executed notebook had produced them successfully in Colab. Under the later D-097 recovery policy, Notebook 05 was deterministically re-executed from the same frozen production checkpoints/histories, pinned data pipeline, and unchanged evaluation procedures solely to recover those missing repository artifacts.
+
+Before the recovered files were declared eligible for commit, the recovery verifier reproduced the frozen evidence at full precision and checked the registered invariants:
+- validation best loss A/B/C = `3.9720542587919865` / `3.7764272480429764` / `3.6845006885642775`, each best at update 3,663, with 21 validation events/model and 256,512 scored targets/event;
+- test loss A/B/C = `3.955289630989754` / `3.772079201476944` / `3.6805543749744354` over exactly 293,376 scored targets/model;
+- the full canonical Notebook 05 output set contained 23 evidence/analysis/figure artifacts, each recorded with byte size and SHA-256 in `results/evaluation/artifact_manifest_sha256.json`.
+
+The official test split was therefore re-scored on 2026-09-07 only as a **provenance-recovery re-measurement** under the unchanged D-092 procedure. No checkpoint selection, model ranking, retuning, hyperparameter choice, or downstream experimental decision was made from this second measurement. The original D-092 result remains the frozen final-test decision evidence; the recovery run demonstrated reproducibility and restored the missing repository artifacts.
+
+This note records provenance only; it does not create a new Notebook 05 experimental decision or alter D-084 through D-094.
+
 ## Next decision ID
 
 The next globally unique decision ID is **D-095**. Notebook 06A — Model C Extended-Training Probe must begin from D-095 and remain explicitly separate from the frozen Notebook 05 scaling comparison.
