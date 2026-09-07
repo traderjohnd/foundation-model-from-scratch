@@ -21,7 +21,9 @@ This project covers pretraining from scratch. Fine-tuning an existing stronger o
 - **Notebook 02 — Tokenizer Training & Corpus Construction** — complete
 - **Notebook 03 — Model Architecture** — complete
 - **Notebook 04 — Training Pipeline** — complete
-- **Notebook 05 — Evaluation & Scaling** — next
+- **Notebook 05 — Evaluation & Scaling** — complete
+- **Notebook 06A — Model C Extended-Training Probe** — next exploratory notebook; separate from the frozen A/B/C scaling comparison
+- **Notebook 06B** — reserved only if a separate evaluation/scope notebook is later created for the 06A extension
 
 ## Canonical decision/documentation system
 The project uses an append-only, globally numbered decision record:
@@ -37,19 +39,7 @@ The project uses an append-only, globally numbered decision record:
 
 Decision IDs are globally unique and never restart at notebook boundaries. Historical decisions are not rewritten to make them look current; later decisions refine/correct/supersede earlier decisions with a new ID and explicit link. The project index intentionally has no mutable “current status” column. The **why/rationale** is preserved because it is required for the final report/presentation.
 
-The historical documentation files that previously mixed one master register, a Notebook 03 addendum, and a Notebook 04 continuation were migrated into this structure. Git history preserves the original files and legacy IDs. New Notebook 05 decisions begin at **D-084**.
-
-## Canonical Notebook 04 implementation
-Notebook 04 is packaged as three model-specific notebooks backed by one shared implementation so there is no duplicated training engine that can drift:
-
-- `notebooks/04_training_pipeline.ipynb` — frozen training contract + Model A production runner (**D-081**)
-- `notebooks/04_training_pipeline_model_b.ipynb` — standalone Model B production runner (**D-082**)
-- `notebooks/04_training_pipeline_model_c.ipynb` — standalone Model C production runner (**D-083**)
-- `src/training_pipeline.py` — canonical reusable training/corpus/checkpoint/resume implementation used by all three notebooks
-
-Each model notebook can start from a fresh Colab T4 runtime. It clones/pulls the repository, mounts the persistent Google Drive production directory, imports `src/training_pipeline.py`, and runs/resumes/verifies only its assigned model. Completed persistent runs are verified and reused rather than retrained.
-
-The detailed training decisions/evidence are in `docs/decisions/04_training_pipeline.md`; the compact cross-model result is in `results/training/production_scaling_summary.json`.
+Notebook 05 decisions run through **D-094**. The next globally unique decision is **D-095**, which will begin Notebook 06A.
 
 ## Data contract
 Dataset: `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`.
@@ -137,7 +127,7 @@ LR schedule:
 - peak LR **`2e-3`**, selected by controlled Model A LR probe
 - 5% warmup = 183 updates
 - cosine decay for 3,480 updates
-- minimum LR = 10% of peak
+- minimum LR = 10% of peak = **`2e-4`** at update 3,663
 - scheduler clock = optimizer updates
 
 Validation:
@@ -148,8 +138,6 @@ Validation:
 - 256,512 scored targets
 - deterministic, no shuffle
 - validation every 200 optimizer updates plus epoch end
-
-Official test content remains untouched and reserved for Notebook 05 final evaluation.
 
 ## Notebook 04 — completed production results
 All three models were trained under the same controlled protocol on a Tesla T4.
@@ -166,36 +154,75 @@ All three models were trained under the same controlled protocol on a Tesla T4.
 | Wall time | 11.78 min | 23.55 min | 42.22 min |
 | Peak GPU memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
 
-Preliminary observations to test formally in Notebook 05:
-- validation performance improved monotonically with capacity
-- every model reached its best validation result at update 3,663
-- no model showed validation deterioration within the fixed budget
-- validation-loss gains shrank with scale while time and memory increased, motivating explicit diminishing-return analysis
-
 Production checkpoints and histories for A/B/C were persisted in Google Drive and verified. Large `.pt` checkpoints are intentionally not committed to GitHub.
 
-## Notebook 04 canonical decision closure
-- D-065 deterministic causal packing through D-080 production wrapper/persistence: implemented and evidenced in the Notebook 04 decision register
-- D-081 Model A production run: complete
-- D-082 Model B production run: complete
-- D-083 Model C production run / Notebook 04 freeze: complete
+## Notebook 05 — completed evaluation and scaling results
+Notebook 05 executed to completion with no cell errors and emitted `Notebook 05 status: COMPLETE`.
 
-## Immediate next step — Notebook 05
-Start a **new chat/context window** and begin **Notebook 05 — Evaluation & Scaling**.
+### Predictive quality
+Validation:
+- A: loss **3.972054**, PPL **53.09**
+- B: loss **3.776427**, PPL **43.66**
+- C: loss **3.684501**, PPL **39.83**
 
-Notebook 05 should:
-1. ingest saved A/B/C run summaries and validation histories
-2. compare validation learning curves under the controlled token budget
-3. quantify parameter growth vs loss/perplexity improvement
-4. quantify training-time, throughput, GPU-memory, and efficiency tradeoffs
-5. analyze diminishing returns explicitly
-6. run controlled qualitative generation using identical prompts/decoding across A/B/C
-7. evaluate the untouched official test split only at the final evaluation stage
-8. save final figures/tables/results for the presentation
+Final untouched test over **293,376 scored targets/model**:
+- A: loss **3.955290**, PPL **52.210814**
+- B: loss **3.772079**, PPL **43.470355**
+- C: loss **3.680554**, PPL **39.668379**
 
-Do **not** retune A/B/C in Notebook 05. The training protocol is frozen.
+The monotonic A→B→C predictive-quality ranking survived intact on the official test split. Validation-to-test gaps were small and slightly negative for all three models.
 
-The next new decision ID is **D-084**.
+### Compute/resource scaling
+- wall time: **11.78 → 23.55 → 42.22 min**
+- peak GPU memory: **4.94 → 7.29 → 10.62 GiB**
+- effective end-to-end target exposures/sec: approximately **84,889 → 42,462 → 23,685**
+- A→C: parameters **4.52×**, wall time **3.58×**, peak memory **2.15×**, throughput reduction about **72%**
+
+### Diminishing returns
+The first clear diminishing-return signal appears in **B→C**. Relative to A→B, the B→C step retained only about:
+- loss/perplexity efficiency per added parameter: **26.9% / 23.3%**
+- per added training minute: **29.6% / 25.6%**
+- per added GiB peak GPU memory: **33.2% / 28.7%**
+
+Model C remained best in absolute predictive quality; the result is declining marginal efficiency, not negative return.
+
+### Qualitative generation
+Three validation-derived prompts and three final test-derived prompts were generated for each A/B/C checkpoint with fixed temperature 0.8, top-p 0.9, 96 new tokens, and fixed per-prompt seeds. The samples showed recognizable WikiText-like prose but **did not** produce a stable monotonic A→B→C human-visible ranking. Repetition, invented entities, topic drift, and long-range incoherence remained common. This complements rather than contradicts the aggregate perplexity result.
+
+### Key limitations
+- three model sizes only
+- one seed/model
+- fixed 20M-token corpus
+- fixed three-epoch training budget
+- all three models were still best at the final update, so convergence/saturation was not established
+- one Tesla T4 production environment
+- six qualitative prompts total
+- factual accuracy not a primary metric
+- no mandatory FLOPs/energy accounting
+- no defensible simple dollar-cost estimate from the Colab execution model
+
+Canonical Notebook 05 decisions are **D-084 through D-094** in `docs/decisions/05_evaluation_and_scaling.md`.
+
+## Immediate next step — Notebook 06A
+Start a **new chat/context window** and begin **Notebook 06A — Model C Extended-Training Probe**.
+
+This is a **separate exploratory experiment**, not an extension of the controlled A/B/C comparison. The frozen Model C result for the original experiment remains epoch 3 / update 3,663 / validation loss 3.684501 / PPL 39.83.
+
+Notebook 06A should investigate whether Model C was training-duration constrained by continuing from its exact epoch-3 checkpoint and observing validation saturation/overfitting.
+
+Initial design direction to formalize under **D-095** before execution:
+1. resume the exact Model C update-3,663 checkpoint, including optimizer/scaler/RNG state where appropriate
+2. preserve the same 20M-token training corpus, tokenizer, architecture, packing, batch semantics, validation split/procedure, dropout, optimizer parameter groups, and seed conventions
+3. explicitly decide the extension learning-rate policy before training; the original cosine schedule ended at **`2e-4`**, and a constant terminal LR of `2e-4` is the leading candidate because the question is whether useful learning remains, not a retuning search
+4. validate every 200 optimizer updates plus epoch end
+5. record both training loss and validation loss across the extension
+6. use validation-loss early stopping with **patience**, not “stop on first increase”; leading design candidate is roughly one epoch of patience (about six validation observations) with a small `min_delta` such as 0.001
+7. retain every new best checkpoint and stop when patience is exhausted or a generous safety ceiling is reached (for example up to 10 additional epochs)
+8. if validation loss continues improving through the ceiling, conclude that no saturation was observed within the tested range rather than forcing an overfitting result
+9. do not substitute any extended-training checkpoint/result into the frozen Notebook 05 A/B/C scaling comparison
+10. if a separate evaluation/scope notebook is later warranted for this extension, designate it **Notebook 06B**
+
+The next new decision ID is **D-095**.
 
 ## Implementation philosophy
 Use explicit PyTorch model and training code. Do not use a pretrained model or Hugging Face `Trainer` for the main implementation.

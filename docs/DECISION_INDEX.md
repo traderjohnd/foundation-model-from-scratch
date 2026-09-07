@@ -111,7 +111,18 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-081 | NB04 | Production evidence | Model A training | 3.972054 val loss; PPL 53.09 | Establishes smallest-model controlled baseline | — | 04 |
 | D-082 | NB04 | Production evidence | Model B training | 3.776427 val loss; PPL 43.66 | Measures capacity gain at same data/training budget | — | 04 |
 | D-083 | NB04 | Production evidence | Model C training / freeze NB04 | 3.684501 val loss; PPL 39.83 | Completes controlled scaling runs before separate evaluation | — | 04 |
+| D-084 | NB05 | Evaluation design | Evaluation scope and evidence/analysis boundary | Frozen Notebook 04 inputs; raw evidence in appendix; analysis in presentation-referenceable main sections; test sealed until final section | Preserves experimental integrity while making the notebook auditable and readable as a standalone analytical report | — | 05 |
+| D-085 | NB05 | Artifact design | Evaluation output artifact contract | Stable machine-readable outputs under `results/evaluation/` and figures under `figures/evaluation/` | Keeps results reproducible and presentation-ready | — | 05 |
+| D-086 | NB05 | Analysis design | Evaluation metric and figure contract | Precommit quality, scale, efficiency, and figure conventions before full-history inspection | Reduces hindsight-driven metric selection | — | 05 |
+| D-087 | NB05 | Evidence audit | Validation-history ingestion and audit contract | Hard-gate complete A/B/C histories against frozen Notebook 04 protocol before comparison | Ensures all scaling claims use complete mutually comparable evidence | — | 05 |
+| D-088 | NB05 | Quality analysis | Quality-scaling analysis | Compare all 21 shared validation checkpoints and endpoints for A/B/C | Isolates capacity's quality effect before combining with cost | — | 05 |
+| D-089 | NB05 | Compute analysis | Compute-cost scaling analysis | Compare measured wall time/memory and derived end-to-end throughput under the identical workload | Makes the resource burden of scale explicit | — | 05 |
+| D-090 | NB05 | Scaling analysis | Marginal return analysis | Evaluate A→B and B→C marginal quality per added parameters, time, and memory; do not fit a universal scaling law | Distinguishes absolute improvement from declining marginal efficiency | — | 05 |
+| D-091 | NB05 | Qualitative evaluation | Controlled generation execution contract | Three fixed validation-derived prompts; temperature .8, top-p .9, 96 new tokens, fixed seeds | Provides reproducible human-visible evidence complementary to perplexity | D-039 refinement | 05 |
+| D-092 | NB05 | Final evaluation | Untouched-test evaluation contract | Open official test only after all prior decisions freeze; score best A/B/C checkpoints once | Provides leakage-free final generalization evidence | — | 05 |
+| D-093 | NB05 | Qualitative evaluation | Final test-prompt generation contract | Three fixed test-derived prompts after quantitative test results freeze; same decoding as D-091 | Completes the planned final qualitative probe without affecting selection | D-039 refinement | 05 |
+| D-094 | NB05 | Closure | Notebook 05 final synthesis and closure | Freeze final A/B/C conclusions and keep future Model C extended training separate | Preserves the controlled experiment while enabling a clean exploratory follow-on | — | 05 |
 
 ## Next ID
 
-**D-084** is reserved as the next new decision ID for Notebook 05 — Evaluation & Scaling.
+**D-095** is the next globally unique decision ID. Notebook 06A — Model C Extended-Training Probe begins from D-095 and remains separate from the frozen Notebook 05 comparison.
