@@ -1,0 +1,29 @@
+[
+  {
+    "Model":"A",
+    "Parameters":7407872,
+    "Best validation loss":3.9720542588,
+    "Best validation perplexity":53.0934866514,
+    "Test loss":3.955289631,
+    "Test perplexity":52.2108136244,
+    "Test targets":293376
+  },
+  {
+    "Model":"B",
+    "Parameters":16913280,
+    "Best validation loss":3.776427248,
+    "Best validation perplexity":43.6597772001,
+    "Test loss":3.7720792015,
+    "Test perplexity":43.4703545635,
+    "Test targets":293376
+  },
+  {
+    "Model":"C",
+    "Parameters":33497600,
+    "Best validation loss":3.6845006886,
+    "Best validation perplexity":39.8252322907,
+    "Test loss":3.680554375,
+    "Test perplexity":39.6683791347,
+    "Test targets":293376
+  }
+]

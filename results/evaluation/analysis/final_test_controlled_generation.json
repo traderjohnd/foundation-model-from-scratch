@@ -1,0 +1,101 @@
+[
+  {
+    "model":"A",
+    "prompt_id":1,
+    "test_example_index":50,
+    "seed":1043,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" was located at the middle of the Naktong Bulge where the Yongsan road came down to the Naktong and crossed it. The US 2nd Infantry Division had planned a reconnaissance mission to start from there the night of",
+    "continuation_text":" the first day, and to the east of the Naktong Bulge was attached to the Naktong Bulge and Naktong Bulge. At nightfall the Naktong Bulge was delayed by the attack and the North Koreans were unable to pull back into the Naktong Bulge by day. On the day of the attack, the North Koreans were tasked with carrying the North Koreans and Naktong Bulge, the Naktong Bulge, and"
+  },
+  {
+    "model":"A",
+    "prompt_id":2,
+    "test_example_index":250,
+    "seed":1044,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" developmental promotion Ohio Valley Wrestling (OVW), where he was a three-time OVW Southern Tag Team Champion with Shelton Benjamin. After debuting on WWE's main roster in 2002, he won the WWE Championship on three",
+    "continuation_text":" occasions and won the title. On the summer of 2003, and in 2003, he was named as the head of the WWE Women's Championship Wrestling Conference (AVW) as a whole. In 2006, he is the fifth child of Candace Kelly and the third child, Troy (Herezcia) and the third child of the WWE Women's Championship Wrestling Federation (EVW) to be the second child of the Wrestling Federation (NHL).\n"
+  },
+  {
+    "model":"A",
+    "prompt_id":3,
+    "test_example_index":500,
+    "seed":1045,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":", such as the acceptance of intermarried couples, adherence to kosher dietary laws, the use of modern language and music during worship services, rewriting of certain prayers such as the Aleynu to",
+    "continuation_text":" the \"colorid dance\" of the folklore. In the years 12, the basic ingredient is not uncomfortable in the The Vanguard of Life and the World of A's (1922), and in the early 20th century, a series of visual arts. The cultural significance of the Polish-American culture is \"Flyingongju\" by the four women who will either see an academic or educational, and about his quality, not only the"
+  },
+  {
+    "model":"B",
+    "prompt_id":1,
+    "test_example_index":50,
+    "seed":1043,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" was located at the middle of the Naktong Bulge where the Yongsan road came down to the Naktong and crossed it. The US 2nd Infantry Division had planned a reconnaissance mission to start from there the night of",
+    "continuation_text":" the offensive and went into an attack on the Naktong River on the attack.\n\n= = = North Korean attack = = =\n\nThe South Korean advance began on the Naktong Bulge on the Naktong Bulge on the afternoon of 17 November, at which point the North Korean force suffered its first casualties. The North Koreans were able to attack Naktong Bulge at the Naktong Bulge, and had advanced to the northwest. This"
+  },
+  {
+    "model":"B",
+    "prompt_id":2,
+    "test_example_index":250,
+    "seed":1044,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" developmental promotion Ohio Valley Wrestling (OVW), where he was a three-time OVW Southern Tag Team Champion with Shelton Benjamin. After debuting on WWE's main roster in 2002, he won the WWE Championship on three",
+    "continuation_text":" occasions. He appeared on the ECW singles Raw, Raw, and SmackDown. On the WWE Championship, he appeared in the top five in a losing streak to WWE Champion Jalke \"The Sun Show\" for the WWE Championship Game.\nIn 2002, he appeared in WWE's first Raw season as a \"Rabon\" for LL Coolbrace (Juneo McAlpine) and a tag team championship. After a few years in the WWE World Heavyweight"
+  },
+  {
+    "model":"B",
+    "prompt_id":3,
+    "test_example_index":500,
+    "seed":1045,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":", such as the acceptance of intermarried couples, adherence to kosher dietary laws, the use of modern language and music during worship services, rewriting of certain prayers such as the Aleynu to",
+    "continuation_text":" the number of her idols, the \"color\", and the \"chart of the embodiment\". Aleynu has also been a popular figure in classical music, and with many classical music, such as the left-hand man, musically, \"were a great ' blue ' of the ' varieties ' of music\" and \"Save a Whale\" for the long time.\n\n= = = = Literature = = = =\n"
+  },
+  {
+    "model":"C",
+    "prompt_id":1,
+    "test_example_index":50,
+    "seed":1043,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" was located at the middle of the Naktong Bulge where the Yongsan road came down to the Naktong and crossed it. The US 2nd Infantry Division had planned a reconnaissance mission to start from there the night of",
+    "continuation_text":" the 26th, but on the night of the day, the US 2nd Infantry Division was halted and the division's first attack was held on the coast of Kyushu.\n\n= = = By the end of the day = = =\n\nThe 2nd Infantry Division's first and last actions were overran by the 12th Infantry Division, with the Japanese supporting elements of the 1st Brigade, and the 1st Battalion, with the 10th Infantry Division capturing"
+  },
+  {
+    "model":"C",
+    "prompt_id":2,
+    "test_example_index":250,
+    "seed":1044,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":" developmental promotion Ohio Valley Wrestling (OVW), where he was a three-time OVW Southern Tag Team Champion with Shelton Benjamin. After debuting on WWE's main roster in 2002, he won the WWE Championship on three",
+    "continuation_text":" occasions.\nChicago Wrestling's all-time champion team was recognized by WWE's All-time team in 2005, and in 2005 he appeared as an All-American (BAFTA) team and also managed to compete in the French national championship at the 2007 World Wrestling World Heavyweight Championship. In 2005, he was named to WWE's Triple Crown Champion. At the 2008 World Wrestling Hall of Fame, the event was nominated in the category of Outstanding Director for the Silver Star"
+  },
+  {
+    "model":"C",
+    "prompt_id":3,
+    "test_example_index":500,
+    "seed":1045,
+    "temperature":0.8,
+    "top_p":0.9,
+    "new_tokens":96,
+    "prompt_text":", such as the acceptance of intermarried couples, adherence to kosher dietary laws, the use of modern language and music during worship services, rewriting of certain prayers such as the Aleynu to",
+    "continuation_text":" the Odds, the Hubblegian and the Odds, and the Odds ' Odds ' to the Odds ' and the Odds ' Said-esque.\nThe Odds ' Odds ' Odds ' and Odds ' Odds ' were a popular non-Jewish ounce for the Odds ' marriage of Hearst and Jews, and were"
+  }
+]

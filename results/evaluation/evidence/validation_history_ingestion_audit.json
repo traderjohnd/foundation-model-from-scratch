@@ -1,0 +1,59 @@
+{
+  "decision_id": "D-087",
+  "status": "pass",
+  "models": {
+    "A": {
+      "completed_updates": 3663,
+      "completed_full_epochs": 3,
+      "validation_events": 21,
+      "best_validation_loss": 3.9720542587919865,
+      "best_validation_perplexity": 53.09348665139399,
+      "best_validation_perplexity_source": "derived_from_best_validation_loss",
+      "best_validation_update": 3663
+    },
+    "B": {
+      "completed_updates": 3663,
+      "completed_full_epochs": 3,
+      "validation_events": 21,
+      "best_validation_loss": 3.7764272480429764,
+      "best_validation_perplexity": 43.65977720014714,
+      "best_validation_perplexity_source": "stored_and_verified",
+      "best_validation_update": 3663
+    },
+    "C": {
+      "completed_updates": 3663,
+      "completed_full_epochs": 3,
+      "validation_events": 21,
+      "best_validation_loss": 3.6845006885642775,
+      "best_validation_perplexity": 39.82523229066963,
+      "best_validation_perplexity_source": "stored_and_verified",
+      "best_validation_update": 3663
+    }
+  },
+  "expected_validation_updates": [
+    200,
+    400,
+    600,
+    800,
+    1000,
+    1200,
+    1221,
+    1400,
+    1600,
+    1800,
+    2000,
+    2200,
+    2400,
+    2442,
+    2600,
+    2800,
+    3000,
+    3200,
+    3400,
+    3600,
+    3663
+  ],
+  "expected_validation_events_per_model": 21,
+  "expected_validation_targets_per_event": 256512,
+  "official_test_split_content_used_before_analysis": false
+}

@@ -1,0 +1,11 @@
+{
+  "official_test_rows": 4358,
+  "reconstructed_test_articles": 60,
+  "test_text_tokens_without_boundaries": 293699,
+  "test_boundary_tokens": 60,
+  "test_stream_tokens": 293759,
+  "test_stream_sha256": "9578e1403a94bf085eb55372e76d4dd74e02c89f7085368c75a1d75f5537d188",
+  "causal_examples": 573,
+  "scored_targets": 293376,
+  "unused_tail_tokens": 382
+}

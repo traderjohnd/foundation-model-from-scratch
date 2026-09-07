@@ -1,0 +1,159 @@
+{
+  "artifact_set": "Notebook 05 recovered canonical evaluation outputs",
+  "recovery_method": "deterministic re-execution of Notebook 05 from frozen inputs",
+  "d092_note": "The official test split was re-scored solely to recover missing repository artifacts under the unchanged D-092 procedure. No model selection, retuning, or downstream experimental decision is permitted from this re-measurement.",
+  "verification": {
+    "validation": {
+      "A": {
+        "best_validation_loss": 3.9720542587919865,
+        "events": 21,
+        "best_update": 3663
+      },
+      "B": {
+        "best_validation_loss": 3.7764272480429764,
+        "events": 21,
+        "best_update": 3663
+      },
+      "C": {
+        "best_validation_loss": 3.6845006885642775,
+        "events": 21,
+        "best_update": 3663
+      }
+    },
+    "test": {
+      "A": {
+        "test_loss": 3.955289630989754,
+        "test_targets": 293376
+      },
+      "B": {
+        "test_loss": 3.772079201476944,
+        "test_targets": 293376
+      },
+      "C": {
+        "test_loss": 3.6805543749744354,
+        "test_targets": 293376
+      }
+    },
+    "validation_targets_per_event": 256512,
+    "test_targets_per_model": 293376,
+    "tolerance": 5e-07,
+    "frozen_invariants_passed": true
+  },
+  "artifacts": [
+    {
+      "path": "figures/evaluation/fig_01_validation_loss_learning_curves.png",
+      "bytes": 130436,
+      "sha256": "4e225b32ebe903346cca4446230dd89375b65983b04dda2cc199e4653409c4b1"
+    },
+    {
+      "path": "figures/evaluation/fig_02_validation_perplexity_learning_curves.png",
+      "bytes": 120522,
+      "sha256": "d4937fcf46a32863d2444c2e66412b69a376c84bdf718562d5ee2ce9034d89a6"
+    },
+    {
+      "path": "figures/evaluation/fig_03_training_wall_time_vs_parameters.png",
+      "bytes": 81803,
+      "sha256": "f4c34618ca2623a46ffda9a165e7e704a10a0711d6655381220eb821ad99deb8"
+    },
+    {
+      "path": "figures/evaluation/fig_04_peak_gpu_memory_vs_parameters.png",
+      "bytes": 83766,
+      "sha256": "9142b41e235612fb3a665a7bb98731b75159fba68b0f4f54d19f85e697836387"
+    },
+    {
+      "path": "figures/evaluation/fig_05_effective_throughput_vs_parameters.png",
+      "bytes": 99882,
+      "sha256": "f0a60571ffc9b39939d3823e93596f8bf56edc0eda596043d218eca16f226250"
+    },
+    {
+      "path": "figures/evaluation/fig_06_quality_cost_frontier.png",
+      "bytes": 95173,
+      "sha256": "1301d5ccba2e0d20f7367d08c98550053a80023c08663782007c4d8a7b3c8fdb"
+    },
+    {
+      "path": "figures/evaluation/fig_07_marginal_efficiency_retained.png",
+      "bytes": 94678,
+      "sha256": "26abe84e46f31df3f74dad1276e56300c2023bd5a2f94d7e9089a4ec17c83921"
+    },
+    {
+      "path": "results/evaluation/analysis/compute_scaling_changes.csv",
+      "bytes": 581,
+      "sha256": "147075b317cc34e2d61e993f2500165beab9b48b6622e33301e83abd20ecabb9"
+    },
+    {
+      "path": "results/evaluation/analysis/compute_scaling_summary.csv",
+      "bytes": 373,
+      "sha256": "ac94d0a6c8ba6590a166e173d280a6431f7df99dd3c4525f28186348a0e0c119"
+    },
+    {
+      "path": "results/evaluation/analysis/controlled_generation_results.csv",
+      "bytes": 5819,
+      "sha256": "83f86064c477863788c163ea0e0e87cf647f5f99b48c8445c3be8d0d37e047f2"
+    },
+    {
+      "path": "results/evaluation/analysis/controlled_generation_results.json",
+      "bytes": 7356,
+      "sha256": "95c487a5dfa9c41201afe8ab353b35a72fb5e20cbe679b133ca7f0dfab4ff8c7"
+    },
+    {
+      "path": "results/evaluation/analysis/final_evaluation_summary.json",
+      "bytes": 1999,
+      "sha256": "01cf1458c35f703aef45f8b45e94dd63d5b775fef6905c1bf85d8b1fe8d08dc3"
+    },
+    {
+      "path": "results/evaluation/analysis/final_test_controlled_generation.csv",
+      "bytes": 5562,
+      "sha256": "1c847bdde8e89de9cab431dff2e2655fdc45557c8d6c2c83894edc3ff305fe73"
+    },
+    {
+      "path": "results/evaluation/analysis/final_test_controlled_generation.json",
+      "bytes": 7034,
+      "sha256": "cd5a6fc3ab4e11a33411c9cabdefee50535cdadbe1553190afdfc6b8ccdd3329"
+    },
+    {
+      "path": "results/evaluation/analysis/final_test_results.csv",
+      "bytes": 376,
+      "sha256": "071cfc929581554b266cb3c15fc9e063423e3a6eb5136a63283c5d0375fb0f3e"
+    },
+    {
+      "path": "results/evaluation/analysis/final_test_results.json",
+      "bytes": 703,
+      "sha256": "d40fc5b76cfa5d0dcce58e9379afdd1b890fffdb99a69a57bb9dcb58f1407c99"
+    },
+    {
+      "path": "results/evaluation/analysis/marginal_efficiency_retention.csv",
+      "bytes": 250,
+      "sha256": "bef01471dde7be710e0da5f6c025c9e4227478b56f389c41209a55087840720d"
+    },
+    {
+      "path": "results/evaluation/analysis/marginal_returns.csv",
+      "bytes": 713,
+      "sha256": "d3861d8fe3ca5b44b225668387071c080678448df2cb3fa19968c36545830b0d"
+    },
+    {
+      "path": "results/evaluation/analysis/quality_endpoints.csv",
+      "bytes": 276,
+      "sha256": "bb365f9143484b7c974fe6c4b595cf27bc8bfb1334334753420e1f4fd7a7c990"
+    },
+    {
+      "path": "results/evaluation/analysis/quality_scaling_changes.csv",
+      "bytes": 465,
+      "sha256": "62a8692196220bf4ee4afeb9e526469cf684a82785104bce05208b0e8157fa3c"
+    },
+    {
+      "path": "results/evaluation/evidence/final_test_stream_audit.json",
+      "bytes": 355,
+      "sha256": "7c89fe1b557df2dfbb8a7780810c2a90b1209760d91db90a74f2c878e63678e7"
+    },
+    {
+      "path": "results/evaluation/evidence/validation_history_canonical.csv",
+      "bytes": 3375,
+      "sha256": "7ec674a8f71de6d0e18819e6cf8b5713612aaf0e75155472f1ca73fbbdc31a15"
+    },
+    {
+      "path": "results/evaluation/evidence/validation_history_ingestion_audit.json",
+      "bytes": 1455,
+      "sha256": "8978fefc9a7adca820861bcb1c5ae34eae73cfe81f651609877937306a00b886"
+    }
+  ]
+}

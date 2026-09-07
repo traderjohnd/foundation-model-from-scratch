@@ -1,0 +1,58 @@
+{
+  "notebook": "05_evaluation_and_scaling",
+  "status": "complete",
+  "experiment_scope": "controlled_A_B_C_fixed_training_budget",
+  "models": {
+    "A": {
+      "parameters": 7407872,
+      "best_validation_loss": 3.9720542587919865,
+      "best_validation_perplexity": 53.09348665139399,
+      "test_loss": 3.955289630989754,
+      "test_perplexity": 52.210813624387924,
+      "wall_time_minutes": 11.78,
+      "peak_gpu_memory_gib": 4.94
+    },
+    "B": {
+      "parameters": 16913280,
+      "best_validation_loss": 3.7764272480429764,
+      "best_validation_perplexity": 43.65977720014714,
+      "test_loss": 3.772079201476944,
+      "test_perplexity": 43.4703545634683,
+      "wall_time_minutes": 23.55,
+      "peak_gpu_memory_gib": 7.29
+    },
+    "C": {
+      "parameters": 33497600,
+      "best_validation_loss": 3.6845006885642775,
+      "best_validation_perplexity": 39.82523229066963,
+      "test_loss": 3.6805543749744354,
+      "test_perplexity": 39.6683791346941,
+      "wall_time_minutes": 42.22,
+      "peak_gpu_memory_gib": 10.62
+    }
+  },
+  "diminishing_returns": {
+    "first_clear_step": "B_to_C",
+    "loss_efficiency_retained_percent": {
+      "per_added_parameters": 26.933034110205686,
+      "per_added_training_time": 29.624043191625532,
+      "per_added_peak_gpu_memory": 33.16162593377509
+    },
+    "perplexity_efficiency_retained_percent": {
+      "per_added_parameters": 23.297237443648914,
+      "per_added_training_time": 25.62497657902905,
+      "per_added_peak_gpu_memory": 28.685007052505608
+    }
+  },
+  "all_models_best_at_final_update": true,
+  "best_update": 3663,
+  "test_split_finally_used": true,
+  "test_stream_sha256": "9578e1403a94bf085eb55372e76d4dd74e02c89f7085368c75a1d75f5537d188",
+  "qualitative_probe": {
+    "validation_prompts": 3,
+    "test_prompts": 3,
+    "monotonic_generation_quality_observed": false
+  },
+  "next_experiment": "06A_model_C_extended_training_probe",
+  "next_experiment_is_separate_from_original_scaling_comparison": true
+}
