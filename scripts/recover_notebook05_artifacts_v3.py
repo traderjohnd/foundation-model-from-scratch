@@ -14,6 +14,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -51,15 +52,20 @@ CANONICAL_ARTIFACTS = [
 
 
 def norm_model(value: Any) -> str:
-    s = str(value).strip().upper().replace("MODEL ", "").replace("MODEL_", "")
-    return s
+    return str(value).strip().upper().replace("MODEL ", "").replace("MODEL_", "")
+
+
+def norm_header(value: str) -> str:
+    """Normalize case/spacing/punctuation so e.g. 'Test loss' == 'test_loss'."""
+    return re.sub(r"[^a-z0-9]+", "", str(value).strip().lower())
 
 
 def find_column(fieldnames: list[str], candidates: tuple[str, ...]) -> str:
-    lookup = {f.lower(): f for f in fieldnames}
+    lookup = {norm_header(f): f for f in fieldnames}
     for c in candidates:
-        if c.lower() in lookup:
-            return lookup[c.lower()]
+        key = norm_header(c)
+        if key in lookup:
+            return lookup[key]
     raise AssertionError(f"Missing required column; tried {candidates}; available={fieldnames}")
 
 
@@ -109,18 +115,15 @@ def validate_test(repo: Path) -> dict[str, Any]:
     path = repo / "results/evaluation/analysis/final_test_results.csv"
     fields, rows = read_csv(path)
 
-    # pandas to_csv on an indexed DataFrame often writes the index as the first
-    # column (possibly named model/model_key, or as an unnamed field).
     model_candidates = ("model", "model_key", "model_name", "index", "unnamed: 0")
     model_col = None
-    lower = {f.lower(): f for f in fields}
+    normalized = {norm_header(f): f for f in fields}
     for c in model_candidates:
-        if c.lower() in lower:
-            model_col = lower[c.lower()]
+        key = norm_header(c)
+        if key in normalized:
+            model_col = normalized[key]
             break
     if model_col is None:
-        # Last-resort structural check: identify a column whose normalized values
-        # are exactly A/B/C across the three result rows.
         for f in fields:
             vals = {norm_model(r.get(f, "")) for r in rows}
             if {"A", "B", "C"}.issubset(vals):
