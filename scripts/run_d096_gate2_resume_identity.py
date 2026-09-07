@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """D-096 Gate 2: behavioral identity of frozen Model C at update 3,663.
 
-This script is deliberately read-only with respect to training state. It loads the
-exact resumable Model C `latest` v2 checkpoint from the canonical persistent
-production root, reconstructs/loads the canonical validation dataset through the
-Notebook 04 training pipeline, performs one full no-shuffle D-072 validation
-pass over 256,512 targets, and fails closed unless the loss reproduces frozen
-3.684501 to at least five decimal places.
+Read-only validation gate. Loads the exact resumable Model C v2 `latest`
+checkpoint from the canonical production root, reconstructs/loads the canonical
+validation dataset through Notebook 04's training pipeline, runs the exact
+no-shuffle D-072 validation evaluator over 256,512 targets, and fails closed
+unless the loss reproduces frozen 3.684501 to at least five decimal places.
 
-It performs ZERO optimizer steps and does not alter checkpoint, optimizer,
-scaler, RNG, LR, or training history state.
+ZERO optimizer steps are executed. This script cannot reach update 3,664.
 """
 
 from __future__ import annotations
@@ -29,7 +27,6 @@ from src.training_pipeline import (
     load_or_build_canonical_datasets,
     make_grad_scaler,
     make_validation_dataloader,
-    production_artifact_paths,
     resolve_runtime_precision_policy,
 )
 
@@ -54,16 +51,9 @@ def load_checkpoint(path: Path) -> dict:
 
 def audit_checkpoint_metadata(checkpoint: dict) -> dict:
     required = {
-        "format_version",
-        "model_key",
-        "global_update",
-        "epoch_index",
-        "updates_completed_in_epoch",
-        "completed_full_epochs",
-        "model_state_dict",
-        "optimizer_state_dict",
-        "scaler_state_dict",
-        "rng_state",
+        "format_version", "model_key", "global_update", "epoch_index",
+        "updates_completed_in_epoch", "completed_full_epochs",
+        "model_state_dict", "optimizer_state_dict", "scaler_state_dict", "rng_state",
     }
     missing = sorted(required - set(checkpoint))
     assert not missing, f"D-096 Gate 2 BLOCKED: checkpoint missing keys: {missing}"
@@ -95,25 +85,27 @@ def main() -> None:
 
     assert torch.cuda.is_available(), "D-096 Gate 2 BLOCKED: CUDA GPU is required"
     gpu_name = torch.cuda.get_device_name(0)
-    assert "T4" in gpu_name.upper(), f"D-096 Gate 2 BLOCKED: canonical runtime requires T4; got {gpu_name}"
+    assert gpu_name == "Tesla T4", (
+        f"D-096 Gate 2 BLOCKED: canonical runtime requires Tesla T4; got {gpu_name!r}"
+    )
 
     persistent_root = args.persistent_root.resolve()
-    paths = production_artifact_paths(EXPECTED_MODEL_KEY, persistent_root)
-    checkpoint_path = Path(paths["latest"])
+    checkpoint_path = persistent_root / "checkpoints" / "model_c_latest.pt"
     checkpoint = load_checkpoint(checkpoint_path)
     checkpoint_audit = audit_checkpoint_metadata(checkpoint)
 
     cfg = MODEL_CONFIGS[EXPECTED_MODEL_KEY]
-    assert analytical_parameter_count(cfg) == EXPECTED_PARAMETERS
+    assert analytical_parameter_count(cfg)["total"] == EXPECTED_PARAMETERS
     model = DecoderOnlyLM(cfg).cuda()
     model.load_state_dict(checkpoint["model_state_dict"], strict=True)
     actual_parameters = sum(p.numel() for p in model.parameters())
     assert actual_parameters == EXPECTED_PARAMETERS
 
-    # Construct these objects only to prove the loaded checkpoint is compatible
-    # with the exact canonical runtime. No optimizer.step() is called.
+    # Prove compatibility with the exact canonical runtime state. We load these
+    # states but deliberately never call optimizer.step() or scaler.step().
     policy = resolve_runtime_precision_policy()
-    assert policy.precision == "fp16", f"D-096 Gate 2 BLOCKED: expected T4 FP16, got {policy.precision}"
+    assert policy.precision == "fp16"
+    assert policy.use_grad_scaler is True
     optimizer = build_adamw_optimizer(model, learning_rate=2e-3)
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     scaler = make_grad_scaler(policy)
@@ -125,12 +117,15 @@ def main() -> None:
         batch_size=32,
     )
 
-    # CRITICAL: behavioral identity measurement. Still zero optimizer steps.
+    # Behavioral identity measurement using the exact Notebook 04 evaluator.
     metrics = evaluate_language_model(model, validation_loader, policy)
     observed = float(metrics["validation_loss"])
     targets = int(metrics["validation_targets"])
     absolute_difference = abs(observed - EXPECTED_VAL_LOSS)
-    rounded_match = round(observed, REQUIRED_DECIMALS) == round(EXPECTED_VAL_LOSS, REQUIRED_DECIMALS)
+    rounded_match = (
+        round(observed, REQUIRED_DECIMALS)
+        == round(EXPECTED_VAL_LOSS, REQUIRED_DECIMALS)
+    )
 
     assert targets == VALIDATION_TARGETS == 256_512, (
         f"D-096 Gate 2 BLOCKED: validation targets={targets}, expected=256512"
@@ -156,9 +151,9 @@ def main() -> None:
         "validation_targets": targets,
     }
 
-    output = args.output
-    if output is None:
-        output = Path("results/extended_training/model_c/d096_gate2_resume_identity.json")
+    output = args.output or Path(
+        "results/extended_training/model_c/d096_gate2_resume_identity.json"
+    )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
