@@ -23,6 +23,18 @@ This project covers pretraining from scratch. Fine-tuning an existing stronger o
 - **Notebook 04 — Training Pipeline** — complete
 - **Notebook 05 — Evaluation & Scaling** — next
 
+## Canonical Notebook 04 implementation
+Notebook 04 is packaged as three model-specific notebooks backed by one shared implementation so there is no duplicated training engine that can drift:
+
+- `notebooks/04_training_pipeline.ipynb` — frozen D-058 through D-073 contract + Model A production runner (D-074)
+- `notebooks/04_training_pipeline_model_b.ipynb` — standalone Model B production runner (D-075)
+- `notebooks/04_training_pipeline_model_c.ipynb` — standalone Model C production runner (D-076)
+- `src/training_pipeline.py` — canonical reusable training/corpus/checkpoint/resume implementation used by all three notebooks
+
+Each model notebook can start from a fresh Colab T4 runtime. It clones/pulls the repository, mounts the persistent Google Drive production directory, imports `src/training_pipeline.py`, and runs/resumes/verifies only its assigned model. Completed persistent runs are verified and reused rather than retrained.
+
+The detailed experimental evidence and decisions remain in `docs/NOTEBOOK04_DECISIONS.md`; the compact cross-model result is in `results/training/production_scaling_summary.json`.
+
 ## Canonical documentation
 - `docs/PROJECT_CONTEXT.md` — concise current state
 - `docs/DECISION_REGISTER.md` — original detailed decision register through the pre-Notebook-04 transition
