@@ -57,6 +57,19 @@ The official test split remains untouched at Notebook 05 start.
 **Alternatives considered:** interleave raw measurements and commentary chronologically; treat Notebook 05 as a collection of analysis cells without a standalone narrative; allow additional tuning during evaluation.  
 **Presentation relevance:** presentation figures and claims can cite stable Notebook 05 sections while the appendix supplies exact supporting measurements and provenance.
 
+## D-085 — Evaluation output artifact contract
+**Selected choice:** Persist reusable machine-readable evaluation outputs under `results/evaluation/` and reproducible presentation-ready figures under `figures/evaluation/`. Keep raw source measurements and provenance in the appendix/reference layer, while the main body contains only derived metrics, figures, interpretation, and conclusions. Important outputs receive stable filenames so later presentation work can reference generated artifacts rather than manually recreating them.  
+**Why:** The separation established in D-084 needs a concrete repository contract. Persisting derived data and figures prevents results from being trapped in notebook state, improves reproducibility, and creates a direct bridge from analysis to the final presentation.  
+**Alternatives considered:** notebook-only outputs; interleave source data and analysis; manually rebuild figures for the presentation.  
+**Presentation relevance:** enables direct reuse of canonical figures and tables in the final deck and keeps slide claims traceable to reproducible notebook outputs.  
+**Refines:** D-084.
+
+## D-086 — Evaluation metric and figure contract
+**Selected choice:** Freeze scaling-analysis conventions before inspecting the complete A/B/C validation histories. Quality scaling uses validation loss and perplexity. Comparisons report absolute and relative changes, parameter/time/memory multipliers, and marginal quality improvement per added million parameters, per added training minute, and per added GiB. Log-parameter views may be used where analytically useful. Important figures must be code-generated, clearly titled, have axes labeled with units, be independently understandable, and be saved with stable presentation-ready filenames.  
+**Why:** Precommitting the comparison metrics reduces hindsight-driven metric selection and makes the scaling argument more defensible. Stable figure conventions improve reproducibility and presentation reuse.  
+**Alternatives considered:** choose metrics after viewing curves; report only endpoint perplexity; create presentation graphics manually outside the analytical pipeline.  
+**Presentation relevance:** directly defines the quantitative and visual evidence used to support the final scaling conclusions.
+
 ## Next decision ID
 
-The next new evaluation decision is **D-085**.
+The next new evaluation decision is **D-087**.
