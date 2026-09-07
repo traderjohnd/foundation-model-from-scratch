@@ -111,7 +111,8 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-081 | NB04 | Production evidence | Model A training | 3.972054 val loss; PPL 53.09 | Establishes smallest-model controlled baseline | — | 04 |
 | D-082 | NB04 | Production evidence | Model B training | 3.776427 val loss; PPL 43.66 | Measures capacity gain at same data/training budget | — | 04 |
 | D-083 | NB04 | Production evidence | Model C training / freeze NB04 | 3.684501 val loss; PPL 39.83 | Completes controlled scaling runs before separate evaluation | — | 04 |
+| D-084 | NB05 | Evaluation design | Evaluation scope and evidence/analysis boundary | Frozen Notebook 04 inputs; raw evidence in appendix; analysis in presentation-referenceable main sections; test sealed until final section | Preserves experimental integrity while making the notebook auditable and readable as a standalone analytical report | — | 05 |
 
 ## Next ID
 
-**D-084** is reserved as the next new decision ID for Notebook 05 — Evaluation & Scaling.
+**D-085** is the next new decision ID for Notebook 05 — Evaluation & Scaling.
