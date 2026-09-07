@@ -1,0 +1,16 @@
+{
+  "gate": "D-096 Gate 3 \u2014 AdamW optimizer-state continuity",
+  "checkpoint_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/checkpoints/model_c_latest.pt",
+  "checkpoint_global_update": 3663,
+  "training_updates_executed": 0,
+  "trainable_parameter_tensors": 74,
+  "trainable_parameters": 33497600,
+  "states_checked": 74,
+  "missing_or_malformed_states": 0,
+  "step_mismatches": 0,
+  "shape_mismatches": 0,
+  "zero_exp_avg_tensors": 0,
+  "zero_exp_avg_sq_tensors": 0,
+  "failures": [],
+  "gate_passed": true
+}

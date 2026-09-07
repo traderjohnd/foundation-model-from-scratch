@@ -1,0 +1,25 @@
+{
+  "gate": "D-096 Gate 2 \u2014 behavioral checkpoint identity",
+  "gate_passed": true,
+  "training_updates_executed": 0,
+  "checkpoint_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/checkpoints/model_c_latest.pt",
+  "checkpoint": {
+    "format_version": 2,
+    "model_key": "C",
+    "global_update": 3663,
+    "completed_full_epochs": 3,
+    "epoch_index": 2,
+    "updates_completed_in_epoch": 1221
+  },
+  "runtime": {
+    "gpu_name": "Tesla T4",
+    "precision": "fp16"
+  },
+  "model_parameters": 33497600,
+  "expected_validation_loss": 3.684501,
+  "observed_validation_loss": 3.6845006885642775,
+  "absolute_difference": 3.114357225442177e-07,
+  "required_decimal_places": 5,
+  "validation_perplexity": 39.82523229066963,
+  "validation_targets": 256512
+}

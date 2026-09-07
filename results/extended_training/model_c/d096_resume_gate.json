@@ -1,0 +1,163 @@
+{
+  "decision": "D-096",
+  "artifact": "Model C hard resume/provenance gate",
+  "gate_passed": true,
+  "training_authorized_by_gate": true,
+  "training_started": false,
+  "next_optimizer_update_if_explicitly_started": 3664,
+  "component_gates": {
+    "gate1_repository_evidence": {
+      "gate": "D-096 Gate 1 \u2014 Notebook 05 repository evidence",
+      "gate_passed": true,
+      "manifest_path": "results/evaluation/artifact_manifest_sha256.json",
+      "canonical_artifacts_checked": 23,
+      "validation_history_path": "results/evaluation/evidence/validation_history_canonical.csv",
+      "model_c_frozen_validation_loss_full_precision": 3.6845006885642775,
+      "model_c_frozen_best_update": 3663,
+      "validation_targets_per_event": 256512
+    },
+    "gate2_behavioral_identity": {
+      "gate": "D-096 Gate 2 \u2014 behavioral checkpoint identity",
+      "gate_passed": true,
+      "training_updates_executed": 0,
+      "checkpoint_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/checkpoints/model_c_latest.pt",
+      "checkpoint": {
+        "format_version": 2,
+        "model_key": "C",
+        "global_update": 3663,
+        "completed_full_epochs": 3,
+        "epoch_index": 2,
+        "updates_completed_in_epoch": 1221
+      },
+      "runtime": {
+        "gpu_name": "Tesla T4",
+        "precision": "fp16"
+      },
+      "model_parameters": 33497600,
+      "expected_validation_loss": 3.684501,
+      "observed_validation_loss": 3.6845006885642775,
+      "absolute_difference": 3.114357225442177e-07,
+      "required_decimal_places": 5,
+      "validation_perplexity": 39.82523229066963,
+      "validation_targets": 256512
+    },
+    "gate3_adamw_continuity": {
+      "gate": "D-096 Gate 3 \u2014 AdamW optimizer-state continuity",
+      "checkpoint_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/checkpoints/model_c_latest.pt",
+      "checkpoint_global_update": 3663,
+      "training_updates_executed": 0,
+      "trainable_parameter_tensors": 74,
+      "trainable_parameters": 33497600,
+      "states_checked": 74,
+      "missing_or_malformed_states": 0,
+      "step_mismatches": 0,
+      "shape_mismatches": 0,
+      "zero_exp_avg_tensors": 0,
+      "zero_exp_avg_sq_tensors": 0,
+      "failures": [],
+      "gate_passed": true
+    },
+    "gate4_provenance": {
+      "gate": "D-096 Gate 4 \u2014 scaler/counters/config/provenance",
+      "gate_passed": true,
+      "training_updates_executed": 0,
+      "checkpoint_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/checkpoints/model_c_latest.pt",
+      "runtime": {
+        "gpu_name": "Tesla T4",
+        "precision": "fp16"
+      },
+      "checkpoint": {
+        "format_version": 2,
+        "model_key": "C",
+        "global_update": 3663,
+        "completed_full_epochs": 3,
+        "epoch_index": 2,
+        "updates_completed_in_epoch": 1221,
+        "seed": 42
+      },
+      "model_parameters": 33497600,
+      "grad_scaler_state_present": true,
+      "rng_state": {
+        "torch_cpu_rng_state_present": true,
+        "torch_cuda_rng_state_count": 1
+      },
+      "hashes": {
+        "tokenizer_sha256": "6ec601a267cec7c843df47927f53c4dd108c85a1d059318aeec4442c7274604f",
+        "train_stream_sha256": "4101d5b18c38558a58110f54a161763186ab5318111366486ebbfa0a3fe584fa",
+        "corpus_manifest_sha256": "4a00196b39311a6c2e2790780e8fc43316f24a014d3d3649028b10a671f8d3fe"
+      },
+      "validation_provenance": {
+        "context_length": 512,
+        "examples": 501,
+        "targets": 256512,
+        "shuffle": false
+      }
+    },
+    "gate5_shuffle_continuity": {
+      "gate": "D-096 Gate 5 \u2014 epoch-4 data-order continuity",
+      "gate_passed": true,
+      "training_updates_executed": 0,
+      "base_seed": 42,
+      "epoch_number": 4,
+      "effective_shuffle_seed": 46,
+      "training_examples": 39062,
+      "micro_batch_size": 32,
+      "first_10_example_indices": [
+        23330,
+        14720,
+        12892,
+        24465,
+        36182,
+        35545,
+        35235,
+        2313,
+        29923,
+        36592
+      ],
+      "repeat_first_10_example_indices": [
+        23330,
+        14720,
+        12892,
+        24465,
+        36182,
+        35545,
+        35235,
+        2313,
+        29923,
+        36592
+      ],
+      "independent_first_10_example_indices": [
+        23330,
+        14720,
+        12892,
+        24465,
+        36182,
+        35545,
+        35235,
+        2313,
+        29923,
+        36592
+      ],
+      "reproducible": true,
+      "independent_reproduction_match": true,
+      "dataloader_semantics_note": "PyTorch DataLoader consumes one int64 generator draw for iterator base_seed before RandomSampler draws randperm from the same generator."
+    }
+  },
+  "frozen_boundary": {
+    "model_key": "C",
+    "global_update": 3663,
+    "completed_epochs": 3,
+    "validation_loss_reference": 3.684501,
+    "model_parameters": 33497600
+  },
+  "extension_contract": {
+    "first_epoch": 4,
+    "epoch4_shuffle_seed": 46,
+    "constant_learning_rate": 0.0002,
+    "min_delta": 0.001,
+    "patience_validation_events": 6,
+    "max_additional_epochs": 10,
+    "max_global_update": 15873
+  },
+  "explicit_stop": "D-096 is closed, but update 3,664 has not been executed by this consolidator."
+}
