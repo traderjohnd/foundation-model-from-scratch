@@ -246,8 +246,123 @@ Official test content was not used for selection.
 ## D-072 — Production accelerator micro-batch preflight
 
 **Decision**
-Before launching the three full model runs, probe the largest physical micro-batch that fits Models A/B/C on the active CUDA device while keeping the logical effective batch fixed at 32 sequences / 16,384 targets.
+Probe the largest physical micro-batch that fits Models A/B/C on the controlled Tesla T4 while holding the logical effective batch fixed at 32 sequences / 16,384 targets.
 
-Model A has already demonstrated 32 sequences on the Tesla T4. Models B and C remain to be measured in the clean Notebook 04 continuation.
+**Observed evidence**
+- Model A: 32 sequences; peak allocation 4.88 GiB
+- Model B: 32 sequences; peak allocation 7.16 GiB
+- Model C: 32 sequences; peak allocation 10.37 GiB
+- runtime: FP16 autocast + GradScaler
 
-**Status**: next execution checkpoint; production training must not begin until this preflight is reviewed.
+All three models fit the full 32-sequence logical batch physically. Gradient accumulation is therefore unnecessary for full updates; the 22-sequence epoch tail remains a smaller logical update by D-059.
+
+**Status**: complete and passed.
+
+---
+
+## D-073 — Production wrapper and checkpoint contract
+
+**Decision**
+Use an explicit production wrapper that preserves all locked controls, validates every 200 optimizer updates plus epoch end, retains best/latest checkpoints, writes JSON history/summary artifacts, records resource metrics, and never accesses the official test split.
+
+Production artifact persistence was moved from ephemeral Colab storage to Google Drive after the first Model A checkpoint files were lost during a runtime reset. Subsequent production artifacts were written to persistent storage and audited.
+
+**Evidence**
+- production validation schedule: 21 events across 3,663 updates
+- expected target exposures/model: 59,999,232
+- checkpoint write/read smoke: PASS
+- history/summary JSON write/read smoke: PASS
+- official test split used: NO
+
+For Models B/C, restart-safe production runners additionally store RNG state with model/optimizer/GradScaler state so interrupted runs can resume from persisted validation checkpoints without silently changing the controlled experiment.
+
+**Status**: complete and passed.
+
+---
+
+## D-074 — Model A production training
+
+**Decision**
+Train Model A under the frozen production protocol and retain the best validation checkpoint.
+
+**Observed result**
+- parameters: 7,407,872
+- updates: 3,663 / 3,663
+- epochs: 3 / 3
+- target exposures: 59,999,232
+- best validation loss: **3.972054**
+- best validation perplexity: **53.09**
+- best validation update: **3,663**
+- wall time: **11.78 min**
+- peak GPU memory: **4.94 GiB**
+- official test split used: NO
+- persistent best/latest checkpoints and JSON artifacts: verified
+
+The best validation result occurred at the final scheduled update. The run was not extended because A/B/C must remain under the same fixed training budget.
+
+**Status**: complete and passed.
+
+---
+
+## D-075 — Model B production training
+
+**Decision**
+Train Model B under the same frozen protocol as Model A. Do not retune learning rate or other optimization controls by model size.
+
+**Observed result**
+- parameters: 16,913,280
+- updates: 3,663 / 3,663
+- epochs: 3 / 3
+- target exposures: 59,999,232
+- best validation loss: **3.776427**
+- best validation perplexity: **43.66**
+- best validation update: **3,663**
+- wall time: **23.55 min**
+- peak GPU memory: **7.29 GiB**
+- official test split used: NO
+- persistent best/latest checkpoints and JSON artifacts: verified
+
+**Status**: complete and passed.
+
+---
+
+## D-076 — Model C production training and Notebook 04 completion
+
+**Decision**
+Train Model C under the same frozen protocol as Models A/B and then freeze Notebook 04. Comparative interpretation belongs in Notebook 05 rather than changing the training protocol after seeing production results.
+
+**Observed result**
+- parameters: 33,497,600
+- updates: 3,663 / 3,663
+- epochs: 3 / 3
+- target exposures: 59,999,232
+- best validation loss: **3.684501**
+- best validation perplexity: **39.83**
+- best validation update: **3,663**
+- wall time: **42.22 min**
+- peak GPU memory: **10.62 GiB**
+- official test split used: NO
+- persistent best/latest checkpoints and JSON artifacts: verified
+
+**Cross-model evidence available for Notebook 05**
+
+| Metric | Model A | Model B | Model C |
+|---|---:|---:|---:|
+| Parameters | 7,407,872 | 16,913,280 | 33,497,600 |
+| Best validation loss | 3.972054 | 3.776427 | 3.684501 |
+| Best perplexity | 53.09 | 43.66 | 39.83 |
+| Best update | 3,663 | 3,663 | 3,663 |
+| Wall time | 11.78 min | 23.55 min | 42.22 min |
+| Peak memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
+
+All three models improved through the final scheduled validation point. Validation performance improved with capacity, while the incremental validation-loss improvement shrank as training time and memory increased. This is preliminary evidence only; formal scaling and diminishing-return analysis is reserved for Notebook 05.
+
+**Status**: complete and passed. **Notebook 04 is frozen.**
+
+---
+
+## Handoff to Notebook 05
+
+Start Notebook 05 — Evaluation & Scaling in a **new chat/context window**.
+
+Notebook 05 must treat the A/B/C training protocol as frozen, use the saved histories/checkpoints, compare learning and resource scaling, perform controlled generation comparisons, and reserve the official test split for the final evaluation stage.
