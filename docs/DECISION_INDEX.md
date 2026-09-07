@@ -124,7 +124,9 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-093 | NB05 | Qualitative evaluation | Final test-prompt generation contract | Three fixed test-derived prompts after quantitative test results freeze; same decoding as D-091 | Completes the planned final qualitative probe without affecting selection | D-039 refinement | 05 |
 | D-094 | NB05 | Closure | Notebook 05 final synthesis and closure | Freeze final A/B/C conclusions and keep future Model C extended training separate | Preserves the controlled experiment while enabling a clean exploratory follow-on | — | 05 |
 | D-095 | NB06A | Experimental design | Model C extended-training contract | Resume exact update-3,663 state; constant 2e-4 LR; val-loss early stopping with min_delta .001 and patience 6; max 10 additional epochs; preserve full train/val history separately | Tests training-duration constraint without retuning or contaminating the frozen A/B/C comparison | — | 06A |
+| D-096 | NB06A | Resume/provenance | Hard continuation gate and downstream evaluation policy | Require canonical NB05 artifacts, behavioral checkpoint identity, non-reset AdamW moments, exact data-order continuity, and precommit one-time exploratory test/fixed generation | Prevents a superficially valid but experimentally discontinuous continuation | — | 06A |
+| D-097 | NB06A | Artifact recovery | Deterministic Notebook 05 artifact recovery and content-hash manifest | Prefer exact originals; if unavailable, re-execute Notebook 05 from frozen inputs, assert frozen validation/test metrics before commit, record test re-measurement, and SHA-256 every canonical artifact | Restores repository-level evidence without synthesizing or silently changing the frozen experiment | D-096 Gate 1 refinement | 06A |
 
 ## Next ID
 
-**D-096** is the next globally unique decision ID.
+**D-098** is the next globally unique decision ID.
