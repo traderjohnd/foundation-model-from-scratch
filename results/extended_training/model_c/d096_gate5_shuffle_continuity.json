@@ -1,0 +1,49 @@
+{
+  "gate": "D-096 Gate 5 \u2014 epoch-4 data-order continuity",
+  "gate_passed": true,
+  "training_updates_executed": 0,
+  "base_seed": 42,
+  "epoch_number": 4,
+  "effective_shuffle_seed": 46,
+  "training_examples": 39062,
+  "micro_batch_size": 32,
+  "first_10_example_indices": [
+    23330,
+    14720,
+    12892,
+    24465,
+    36182,
+    35545,
+    35235,
+    2313,
+    29923,
+    36592
+  ],
+  "repeat_first_10_example_indices": [
+    23330,
+    14720,
+    12892,
+    24465,
+    36182,
+    35545,
+    35235,
+    2313,
+    29923,
+    36592
+  ],
+  "independent_first_10_example_indices": [
+    23330,
+    14720,
+    12892,
+    24465,
+    36182,
+    35545,
+    35235,
+    2313,
+    29923,
+    36592
+  ],
+  "reproducible": true,
+  "independent_reproduction_match": true,
+  "dataloader_semantics_note": "PyTorch DataLoader consumes one int64 generator draw for iterator base_seed before RandomSampler draws randperm from the same generator."
+}
