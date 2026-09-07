@@ -70,6 +70,13 @@ The official test split remains untouched at Notebook 05 start.
 **Alternatives considered:** choose metrics after viewing curves; report only endpoint perplexity; create presentation graphics manually outside the analytical pipeline.  
 **Presentation relevance:** directly defines the quantitative and visual evidence used to support the final scaling conclusions.
 
+## D-087 — Validation-history ingestion and audit contract
+**Selected choice:** Before any scaling interpretation, ingest the complete persistent A/B/C history and run-summary artifacts and hard-gate them against the frozen Notebook 04 contract. Require all history/summary/checkpoint artifacts to exist; verify model identity, 3,663 completed updates, 3 epochs, exactly 21 validation events at the canonical validation schedule, 256,512 targets per validation event, final validation at update 3,663, `perplexity = exp(loss)`, best-loss/update agreement with each run summary, compact production-summary agreement, equal production controls, and explicit confirmation that official test content was not used. Normalize the verified validation evidence into a canonical long-form table under `results/evaluation/evidence/`. Any failed assertion stops comparative analysis; no inconsistent evidence is repaired, interpolated, or silently omitted.  
+**Why:** Scaling conclusions are only defensible if all three learning curves come from complete, mutually comparable artifacts under the same experiment. A hard evidence gate separates provenance validation from analysis and prevents accidental comparison of partial, stale, or mismatched runs.  
+**Alternatives considered:** trust the compact endpoint summary alone; parse training logs without cross-checks; continue analysis with missing validation points.  
+**Presentation relevance:** provides an auditable foundation for every learning-curve and scaling claim used later in the notebook and presentation.  
+**Refines:** D-084, D-085, D-086.
+
 ## Next decision ID
 
-The next new evaluation decision is **D-087**.
+The next new evaluation decision is **D-088**.
