@@ -1,0 +1,49 @@
+{
+  "notebook": "04_training_pipeline",
+  "status": "complete",
+  "training_protocol_frozen": true,
+  "hardware": "Tesla T4",
+  "precision": "fp16_autocast_plus_gradscaler",
+  "peak_learning_rate": 0.002,
+  "max_epochs": 3,
+  "optimizer_updates_per_model": 3663,
+  "target_exposures_per_model": 59999232,
+  "effective_batch_targets": 16384,
+  "physical_micro_batch_sequences": {
+    "A": 32,
+    "B": 32,
+    "C": 32
+  },
+  "official_test_split_content_used": false,
+  "models": {
+    "A": {
+      "parameters": 7407872,
+      "best_validation_loss": 3.972054,
+      "best_validation_perplexity": 53.09,
+      "best_validation_update": 3663,
+      "wall_time_minutes": 11.78,
+      "peak_gpu_memory_gib": 4.94,
+      "persistent_artifacts_verified": true
+    },
+    "B": {
+      "parameters": 16913280,
+      "best_validation_loss": 3.776427,
+      "best_validation_perplexity": 43.66,
+      "best_validation_update": 3663,
+      "wall_time_minutes": 23.55,
+      "peak_gpu_memory_gib": 7.29,
+      "persistent_artifacts_verified": true
+    },
+    "C": {
+      "parameters": 33497600,
+      "best_validation_loss": 3.684501,
+      "best_validation_perplexity": 39.83,
+      "best_validation_update": 3663,
+      "wall_time_minutes": 42.22,
+      "peak_gpu_memory_gib": 10.62,
+      "persistent_artifacts_verified": true
+    }
+  },
+  "next_notebook": "05_evaluation_and_scaling",
+  "next_chat": true
+}
