@@ -23,22 +23,33 @@ This project covers pretraining from scratch. Fine-tuning an existing stronger o
 - **Notebook 04 — Training Pipeline** — complete
 - **Notebook 05 — Evaluation & Scaling** — next
 
+## Canonical decision/documentation system
+The project uses an append-only, globally numbered decision record:
+
+- `docs/PROJECT_CONTEXT.md` — concise current-state/resume document
+- `docs/DECISION_INDEX.md` — project-wide chronological decision index
+- `docs/decisions/00_project_definition.md`
+- `docs/decisions/01_data_preparation_and_corpus_audit.md`
+- `docs/decisions/02_tokenizer_training_and_corpus_construction.md`
+- `docs/decisions/03_model_architecture.md`
+- `docs/decisions/04_training_pipeline.md`
+- `docs/decisions/05_evaluation_and_scaling.md`
+
+Decision IDs are globally unique and never restart at notebook boundaries. Historical decisions are not rewritten to make them look current; later decisions refine/correct/supersede earlier decisions with a new ID and explicit link. The project index intentionally has no mutable “current status” column. The **why/rationale** is preserved because it is required for the final report/presentation.
+
+The historical documentation files that previously mixed one master register, a Notebook 03 addendum, and a Notebook 04 continuation were migrated into this structure. Git history preserves the original files and legacy IDs. New Notebook 05 decisions begin at **D-084**.
+
 ## Canonical Notebook 04 implementation
 Notebook 04 is packaged as three model-specific notebooks backed by one shared implementation so there is no duplicated training engine that can drift:
 
-- `notebooks/04_training_pipeline.ipynb` — frozen D-058 through D-073 contract + Model A production runner (D-074)
-- `notebooks/04_training_pipeline_model_b.ipynb` — standalone Model B production runner (D-075)
-- `notebooks/04_training_pipeline_model_c.ipynb` — standalone Model C production runner (D-076)
+- `notebooks/04_training_pipeline.ipynb` — frozen training contract + Model A production runner (**D-081**)
+- `notebooks/04_training_pipeline_model_b.ipynb` — standalone Model B production runner (**D-082**)
+- `notebooks/04_training_pipeline_model_c.ipynb` — standalone Model C production runner (**D-083**)
 - `src/training_pipeline.py` — canonical reusable training/corpus/checkpoint/resume implementation used by all three notebooks
 
 Each model notebook can start from a fresh Colab T4 runtime. It clones/pulls the repository, mounts the persistent Google Drive production directory, imports `src/training_pipeline.py`, and runs/resumes/verifies only its assigned model. Completed persistent runs are verified and reused rather than retrained.
 
-The detailed experimental evidence and decisions remain in `docs/NOTEBOOK04_DECISIONS.md`; the compact cross-model result is in `results/training/production_scaling_summary.json`.
-
-## Canonical documentation
-- `docs/PROJECT_CONTEXT.md` — concise current state
-- `docs/DECISION_REGISTER.md` — original detailed decision register through the pre-Notebook-04 transition
-- `docs/NOTEBOOK04_DECISIONS.md` — Notebook 04 decision continuation, D-058 onward
+The detailed training decisions/evidence are in `docs/decisions/04_training_pipeline.md`; the compact cross-model result is in `results/training/production_scaling_summary.json`.
 
 ## Data contract
 Dataset: `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`.
@@ -163,13 +174,11 @@ Preliminary observations to test formally in Notebook 05:
 
 Production checkpoints and histories for A/B/C were persisted in Google Drive and verified. Large `.pt` checkpoints are intentionally not committed to GitHub.
 
-## Notebook 04 decision status
-- D-058 through D-071: PASS / locked
-- D-072 production accelerator preflight: PASS; physical micro-batch 32 for A/B/C
-- D-073 production wrapper/checkpoint smoke: PASS
-- D-074 Model A production training: PASS
-- D-075 Model B production training: PASS
-- D-076 Model C production training: PASS
+## Notebook 04 canonical decision closure
+- D-065 deterministic causal packing through D-080 production wrapper/persistence: implemented and evidenced in the Notebook 04 decision register
+- D-081 Model A production run: complete
+- D-082 Model B production run: complete
+- D-083 Model C production run / Notebook 04 freeze: complete
 
 ## Immediate next step — Notebook 05
 Start a **new chat/context window** and begin **Notebook 05 — Evaluation & Scaling**.
@@ -185,6 +194,8 @@ Notebook 05 should:
 8. save final figures/tables/results for the presentation
 
 Do **not** retune A/B/C in Notebook 05. The training protocol is frozen.
+
+The next new decision ID is **D-084**.
 
 ## Implementation philosophy
 Use explicit PyTorch model and training code. Do not use a pretrained model or Hugging Face `Trainer` for the main implementation.
