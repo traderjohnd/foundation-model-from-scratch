@@ -13,7 +13,7 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 3. A later decision may **confirm, refine, correct, or supersede** an earlier decision, but it does so with a new ID and an explicit `Supersedes` link.
 4. The index contains only durable historical facts. It intentionally has **no “current status” column** that would require retroactive maintenance.
 5. Every substantive decision must preserve the **why**: the reasoning that made the choice defensible at the time.
-6. New decisions made in Notebook 05 begin at **D-084**.
+6. Notebook 06A decisions begin at **D-095** and remain explicitly separate from the frozen Notebook 05 A/B/C comparison.
 
 ## Canonical phase registers
 
@@ -23,6 +23,7 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 - [`decisions/03_model_architecture.md`](decisions/03_model_architecture.md)
 - [`decisions/04_training_pipeline.md`](decisions/04_training_pipeline.md)
 - [`decisions/05_evaluation_and_scaling.md`](decisions/05_evaluation_and_scaling.md)
+- [`decisions/06a_model_c_extended_training_probe.md`](decisions/06a_model_c_extended_training_probe.md)
 
 ## Chronological decision index
 
@@ -122,7 +123,8 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-092 | NB05 | Final evaluation | Untouched-test evaluation contract | Open official test only after all prior decisions freeze; score best A/B/C checkpoints once | Provides leakage-free final generalization evidence | — | 05 |
 | D-093 | NB05 | Qualitative evaluation | Final test-prompt generation contract | Three fixed test-derived prompts after quantitative test results freeze; same decoding as D-091 | Completes the planned final qualitative probe without affecting selection | D-039 refinement | 05 |
 | D-094 | NB05 | Closure | Notebook 05 final synthesis and closure | Freeze final A/B/C conclusions and keep future Model C extended training separate | Preserves the controlled experiment while enabling a clean exploratory follow-on | — | 05 |
+| D-095 | NB06A | Experimental design | Model C extended-training contract | Resume exact update-3,663 state; constant 2e-4 LR; val-loss early stopping with min_delta .001 and patience 6; max 10 additional epochs; preserve full train/val history separately | Tests training-duration constraint without retuning or contaminating the frozen A/B/C comparison | — | 06A |
 
 ## Next ID
 
-**D-095** is the next globally unique decision ID. Notebook 06A — Model C Extended-Training Probe begins from D-095 and remains separate from the frozen Notebook 05 comparison.
+**D-096** is the next globally unique decision ID.
