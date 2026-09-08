@@ -30,15 +30,15 @@ Higher-level question:
 > **At what point does increasing model capacity produce diminishing returns when training data and compute are constrained?**
 
 ## Canonical documentation
+- `docs/README.md` — documentation map and reading order
 - `docs/PROJECT_CONTEXT.md` — current-state/resume document
 - `docs/DECISION_INDEX.md` — append-only project-wide chronological index
-- phase registers under `docs/decisions/`
-- Notebook 06A supplemental decisions:
-  - `docs/decisions/06a_d098_launch_and_resume_contract.md`
-  - `docs/decisions/06a_d099_validation_selection_and_stop_classification.md`
-  - `docs/decisions/06a_d100_final_closure.md`
+- `docs/decisions/` — one canonical decision register per project phase/notebook
+- `docs/provenance/` — audit/recovery records that matter to reproducibility but are not decision registers
 
-Decision history is append-only; later decisions refine/correct earlier decisions rather than rewriting historical choices.
+Notebook 06A decisions **D-095 through D-100** are consolidated in the single canonical register `docs/decisions/06a_model_c_extended_training_probe.md`. The Notebook 05 artifact-retention incident and recovery are retained separately at `docs/provenance/05_evaluation_artifact_recovery.md`.
+
+Decision history is append-only; consolidation changes only document organization and does not rewrite the historical meaning of any decision.
 
 ## Data contract
 Dataset: `Salesforce/wikitext`, configuration `wikitext-103-raw-v1`.
