@@ -4,6 +4,11 @@
 DISARMED by default. Without --execute, this validates whether the next run would
 start from frozen update 3,663 or resume from the separate 06A latest checkpoint,
 then exits with zero optimizer updates.
+
+The T4/FP16 path also includes deterministic loss-scale overflow recovery. If a
+scaled backward pass produces non-finite gradients, the same logical optimizer
+update is retried with the pre-attempt RNG state restored and the GradScaler
+scale backed off. Failed attempts never advance the optimizer-update counters.
 """
 from __future__ import annotations
 
@@ -11,6 +16,7 @@ import argparse, json, math, sys, time
 from datetime import datetime, timezone
 from pathlib import Path
 import torch
+import torch.nn.functional as F
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -20,13 +26,13 @@ from src.model import MODEL_CONFIGS, DecoderOnlyLM, analytical_parameter_count
 from src.training_pipeline import (
     CANONICAL_TOKENIZER_SHA256, CANONICAL_TRAIN_STREAM_SHA256,
     OPTIMIZER_UPDATES_PER_EPOCH, PRODUCTION_MICRO_BATCH_SEQUENCES, SEED,
-    SEQUENCES_PER_FULL_UPDATE, VALIDATION_TARGETS, atomic_torch_save,
-    build_adamw_optimizer, capture_rng_state, evaluate_language_model,
+    SEQUENCES_PER_FULL_UPDATE, VALIDATION_TARGETS, GRAD_CLIP_NORM,
+    atomic_torch_save, autocast_context, build_adamw_optimizer,
+    capture_rng_state, evaluate_language_model, global_grad_norm,
     iter_effective_batch_pieces, load_or_build_canonical_datasets,
     make_epoch_dataloader, make_grad_scaler, make_validation_dataloader,
     move_optimizer_state_to_device, resolve_runtime_precision_policy,
-    restore_rng_state, set_optimizer_learning_rate, train_one_optimizer_update,
-    write_json_artifact,
+    restore_rng_state, set_optimizer_learning_rate, write_json_artifact,
 )
 
 MODEL_KEY = "C"
@@ -41,6 +47,8 @@ MAX_GLOBAL_UPDATE = 15_873
 VAL_EVERY = 200
 MIN_DELTA = 0.001
 PATIENCE = 6
+MAX_FP16_OVERFLOW_RETRIES = 12
+MIN_FP16_LOSS_SCALE = 1.0
 
 
 def load_json(path: Path) -> dict:
@@ -62,7 +70,8 @@ def paths(root: Path) -> dict[str, Path]:
 def make_ckpt(*, model, optimizer, scaler, global_update, epoch_number,
               updates_in_epoch, ext_updates, history, val_history,
               best_loss, best_update, material_ref, patience_count,
-              targets, elapsed, stop_reason, gpu_name, precision):
+              targets, elapsed, stop_reason, gpu_name, precision,
+              overflow_retries_total):
     return {
         "format_version": 2,
         "experiment": "06A_model_c_extended_training_probe",
@@ -86,12 +95,114 @@ def make_ckpt(*, model, optimizer, scaler, global_update, epoch_number,
         "precision": precision,
         "tokenizer_sha256": CANONICAL_TOKENIZER_SHA256,
         "train_stream_sha256": CANONICAL_TRAIN_STREAM_SHA256,
+        "fp16_overflow_retries_total": int(overflow_retries_total),
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "scaler_state_dict": scaler.state_dict(),
         "rng_state": capture_rng_state(),
         "saved_at_utc": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def _gradients_are_finite(model) -> bool:
+    for param in model.parameters():
+        if param.grad is not None and not torch.isfinite(param.grad).all():
+            return False
+    return True
+
+
+def train_one_optimizer_update_with_fp16_retry(
+    model, optimizer, scaler, policy, batch_pieces, learning_rate: float
+):
+    """Run one logical optimizer update with deterministic FP16 overflow retry.
+
+    The logical batch and RNG state are held fixed across retries. A failed
+    scaled backward pass does not call optimizer.step(), does not advance any
+    external update counter, and only changes GradScaler state by backing off
+    its loss scale.
+    """
+    set_optimizer_learning_rate(optimizer, learning_rate)
+    total_targets = sum(y.numel() for _, y in batch_pieces)
+    rng_before_attempt = capture_rng_state()
+    initial_scale = float(scaler.get_scale())
+    retries = 0
+
+    while True:
+        restore_rng_state(rng_before_attempt)
+        optimizer.zero_grad(set_to_none=True)
+        total_loss_sum = 0.0
+
+        for x, y in batch_pieces:
+            x = x.to(policy.device_type, non_blocking=True)
+            y = y.to(policy.device_type, non_blocking=True)
+
+            with autocast_context(policy):
+                logits = model(x)
+                loss_sum = F.cross_entropy(
+                    logits.reshape(-1, logits.size(-1)),
+                    y.reshape(-1),
+                    reduction="sum",
+                )
+
+            if not torch.isfinite(loss_sum):
+                raise FloatingPointError("Non-finite training loss encountered")
+
+            total_loss_sum += float(loss_sum.detach().float().cpu())
+            normalized_loss = loss_sum / total_targets
+            scaler.scale(normalized_loss).backward()
+
+        scaler.unscale_(optimizer)
+
+        if _gradients_are_finite(model):
+            grad_norm_before_clip = global_grad_norm(model.parameters())
+            if not math.isfinite(grad_norm_before_clip):
+                raise FloatingPointError(
+                    "Gradient tensors are finite but global norm is non-finite"
+                )
+
+            clipped = grad_norm_before_clip > GRAD_CLIP_NORM
+            torch.nn.utils.clip_grad_norm_(
+                model.parameters(),
+                max_norm=GRAD_CLIP_NORM,
+                error_if_nonfinite=True,
+            )
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad(set_to_none=True)
+
+            return {
+                "training_loss": total_loss_sum / total_targets,
+                "training_targets": total_targets,
+                "grad_norm_before_clip": grad_norm_before_clip,
+                "clipped": clipped,
+                "learning_rate": learning_rate,
+                "fp16_overflow_retries": retries,
+                "fp16_loss_scale_initial": initial_scale,
+                "fp16_loss_scale_final": float(scaler.get_scale()),
+            }
+
+        old_scale = float(scaler.get_scale())
+        new_scale = max(
+            old_scale * float(scaler.get_backoff_factor()),
+            MIN_FP16_LOSS_SCALE,
+        )
+        retries += 1
+        optimizer.zero_grad(set_to_none=True)
+        scaler.update(new_scale=new_scale)
+
+        print(
+            "06A FP16 overflow recovery | "
+            f"retry={retries}/{MAX_FP16_OVERFLOW_RETRIES} | "
+            f"loss_scale={old_scale:g}->{new_scale:g} | "
+            "same logical optimizer update will be replayed"
+        )
+
+        if retries > MAX_FP16_OVERFLOW_RETRIES or (
+            new_scale <= MIN_FP16_LOSS_SCALE and old_scale <= MIN_FP16_LOSS_SCALE
+        ):
+            raise FloatingPointError(
+                "FP16 gradient overflow persisted after deterministic loss-scale backoff"
+            )
 
 
 def main():
@@ -174,6 +285,7 @@ def main():
         material_ref = float(ck["material_reference_loss"])
         patience_count = int(ck["patience_count"])
         elapsed_before = float(ck.get("elapsed_seconds", 0.0))
+        overflow_retries_total = int(ck.get("fp16_overflow_retries_total", 0))
         assert global_update == FROZEN_UPDATE + ext_updates
         assert 0 <= updates_in_epoch <= OPTIMIZER_UPDATES_PER_EPOCH
         if updates_in_epoch == OPTIMIZER_UPDATES_PER_EPOCH:
@@ -194,6 +306,7 @@ def main():
         history, val_history = [], []
         best_loss, best_update = baseline_loss, FROZEN_UPDATE
         material_ref, patience_count, elapsed_before = baseline_loss, 0, 0.0
+        overflow_retries_total = 0
 
     print("NOTEBOOK 06A RESUMABLE EXTENSION: PREFLIGHT PASS")
     print("Mode:", "RESUME" if resume else "FRESH EXTENSION START")
@@ -201,6 +314,8 @@ def main():
     print("Current extension epoch / updates in epoch:", epoch_number, "/", updates_in_epoch)
     print("Extension updates already persisted:", ext_updates)
     print("Constant LR:", EXT_LR)
+    print("Current FP16 loss scale:", float(scaler.get_scale()))
+    print("Prior FP16 overflow retries persisted:", overflow_retries_total)
     if not args.execute:
         print("Execution flag: ABSENT")
         print("Optimizer updates executed this invocation: 0")
@@ -222,13 +337,20 @@ def main():
                 raise RuntimeError("06A resume position exceeds epoch length") from exc
 
         for pieces in groups:
-            global_update += 1
-            ext_updates += 1
-            updates_in_epoch += 1
-            assert global_update == FROZEN_UPDATE + ext_updates
-            assert global_update <= MAX_GLOBAL_UPDATE
+            next_global_update = global_update + 1
+            next_ext_update = ext_updates + 1
+            next_updates_in_epoch = updates_in_epoch + 1
+            assert next_global_update == FROZEN_UPDATE + next_ext_update
+            assert next_global_update <= MAX_GLOBAL_UPDATE
 
-            m = train_one_optimizer_update(model, optimizer, scaler, policy, pieces, EXT_LR)
+            m = train_one_optimizer_update_with_fp16_retry(
+                model, optimizer, scaler, policy, pieces, EXT_LR
+            )
+
+            global_update = next_global_update
+            ext_updates = next_ext_update
+            updates_in_epoch = next_updates_in_epoch
+            overflow_retries_total += int(m["fp16_overflow_retries"])
             targets += int(m["training_targets"])
             rec = {"epoch": epoch_number, "update": global_update,
                    "extension_update": ext_updates, **m}
@@ -251,7 +373,9 @@ def main():
                     "extension_update": ext_updates, **v,
                     "strict_best": strict_best, "material_improvement": material,
                     "material_reference_loss": material_ref,
-                    "patience_count": patience_count})
+                    "patience_count": patience_count,
+                    "fp16_overflow_retries_total": overflow_retries_total,
+                    "fp16_loss_scale": float(scaler.get_scale())})
                 history.append(rec)
                 elapsed = elapsed_before + (time.perf_counter() - start)
                 payload = make_ckpt(model=model, optimizer=optimizer, scaler=scaler,
@@ -260,7 +384,8 @@ def main():
                     history=history, val_history=val_history, best_loss=best_loss,
                     best_update=best_update, material_ref=material_ref,
                     patience_count=patience_count, targets=targets, elapsed=elapsed,
-                    stop_reason=None, gpu_name=gpu_name, precision=policy.precision)
+                    stop_reason=None, gpu_name=gpu_name, precision=policy.precision,
+                    overflow_retries_total=overflow_retries_total)
                 atomic_torch_save(payload, p["latest"])
                 if strict_best:
                     atomic_torch_save(payload, p["best"])
@@ -269,8 +394,10 @@ def main():
                     "updates_completed_in_epoch":updates_in_epoch,
                     "validation_loss":val_loss,"best_validation_loss":best_loss,
                     "best_validation_update":best_update,"patience_count":patience_count,
+                    "fp16_loss_scale":float(scaler.get_scale()),
+                    "fp16_overflow_retries_total":overflow_retries_total,
                     "saved_at_utc":datetime.now(timezone.utc).isoformat()}, p["progress"])
-                print(f"06A | epoch {epoch_number:2d} | global {global_update:5d} | ext {ext_updates:5d} | val={val_loss:.6f} | best={best_loss:.6f}@{best_update} | patience={patience_count}/{PATIENCE}")
+                print(f"06A | epoch {epoch_number:2d} | global {global_update:5d} | ext {ext_updates:5d} | val={val_loss:.6f} | best={best_loss:.6f}@{best_update} | patience={patience_count}/{PATIENCE} | scale={float(scaler.get_scale()):g} | overflow_retries={overflow_retries_total}")
                 if patience_count >= PATIENCE:
                     stop_reason = "early_stopping_patience_exhausted"
                     break
@@ -299,11 +426,15 @@ def main():
         "saturation_observed":stop_reason=="early_stopping_patience_exhausted",
         "elapsed_seconds":elapsed,"official_test_split_content_used":False,
         "resume_capable":True,
+        "fp16_overflow_retries_total":overflow_retries_total,
+        "final_fp16_loss_scale":float(scaler.get_scale()),
     }
     write_json_artifact({"history":history,"validation_history":val_history}, p["history"])
     write_json_artifact(summary, p["summary"])
     write_json_artifact({"status":"complete","global_update":global_update,
-        "stop_reason":stop_reason,"saved_at_utc":datetime.now(timezone.utc).isoformat()}, p["progress"])
+        "stop_reason":stop_reason,"fp16_overflow_retries_total":overflow_retries_total,
+        "final_fp16_loss_scale":float(scaler.get_scale()),
+        "saved_at_utc":datetime.now(timezone.utc).isoformat()}, p["progress"])
     print("NOTEBOOK 06A EXTENSION: COMPLETE")
     print(json.dumps(summary, indent=2))
 
