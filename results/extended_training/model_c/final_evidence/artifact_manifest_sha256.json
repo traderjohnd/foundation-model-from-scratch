@@ -1,0 +1,51 @@
+{
+  "experiment": "06A_model_c_extended_training_probe",
+  "packaged_at_utc": "2026-09-08T15:39:08.556149+00:00",
+  "source_root": "/content/drive/MyDrive/foundation-model-from-scratch/production/extended_training/model_c",
+  "repo_evidence_files": {
+    "results/extended_training/model_c/final_evidence/extension_summary.json": {
+      "bytes": 674,
+      "sha256": "0524f4fd29a3b7049e96534c5d005a661e26098f41456ed92706edb05db459cb"
+    },
+    "results/extended_training/model_c/final_evidence/extension_history.json": {
+      "bytes": 3151019,
+      "sha256": "cdc0cb63dfcdab65f1718347a4e352b2764a9d11cd6900144cdb9e6d279ed380"
+    },
+    "results/extended_training/model_c/final_evidence/extension_progress.json": {
+      "bytes": 233,
+      "sha256": "e758852c40fb238959486272642fb7b0cb0ea7ce179d8a358bc16f95f437896f"
+    },
+    "results/extended_training/model_c/final_evidence/one_time_exploratory_test.json": {
+      "bytes": 928,
+      "sha256": "62de2517225a8b122efe93d3f9da44767c28d265f05122569338b711abd3f5ab"
+    },
+    "results/extended_training/model_c/final_evidence/fixed_d091_generation.json": {
+      "bytes": 7303,
+      "sha256": "590f1e42e51e101bb0c09009397f73c6ea2d6eff8e2274ff4852d5ec8ea443c6"
+    }
+  },
+  "external_checkpoint_files": {
+    "model_c_extension_best.pt": {
+      "persistent_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/extended_training/model_c/model_c_extension_best.pt",
+      "bytes": 402847627,
+      "sha256": "d4ead0686e01ea6457f74d780b2dc3859bd3fe6d2f2d164d257bda8f87ef4086"
+    },
+    "model_c_extension_latest.pt": {
+      "persistent_path": "/content/drive/MyDrive/foundation-model-from-scratch/production/extended_training/model_c/model_c_extension_latest.pt",
+      "bytes": 402977643,
+      "sha256": "effe670ebfbdb8f738635939ac4426570f36b4481cd3964d343633e4fec6335b"
+    }
+  },
+  "frozen_outcome": {
+    "best_validation_update": 12210,
+    "best_validation_loss": 3.599946362767629,
+    "final_global_update": 13263,
+    "extension_updates": 9600,
+    "stop_reason": "early_stopping_patience_exhausted",
+    "fp16_overflow_retries_total": 3,
+    "one_time_test_loss": 3.606927575449253,
+    "one_time_test_targets": 293376,
+    "one_time_test_stream_sha256": "9578e1403a94bf085eb55372e76d4dd74e02c89f7085368c75a1d75f5537d188"
+  },
+  "large_checkpoints_copied_into_git": false
+}
