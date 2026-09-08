@@ -276,15 +276,298 @@ The missing Notebook 05 outputs are not merely a documentation inconvenience: D-
 
 ---
 
-## Supplemental 06A decisions and closure
+## D-098 — Notebook 06A launch and exact-resume execution contract
 
-The execution and completion decisions are stored as append-only supplemental 06A records so the original D-095–D-097 contract remains intact:
+Notebook 06A is an exploratory continuation of frozen Model C and remains separate from the controlled Notebook 05 A/B/C comparison.
 
-- **D-098 — Launch and exact-resume execution contract:** `docs/decisions/06a_d098_launch_and_resume_contract.md`
-- **D-099 — Validation-selected checkpoint and stop classification:** `docs/decisions/06a_d099_validation_selection_and_stop_classification.md`
-- **D-100 — Final synthesis and experimental closure:** `docs/decisions/06a_d100_final_closure.md`
+### Selected choice
 
-D-100 freezes the final outcome: best validation update **12,210** at loss **3.599946362767629**; one-time exploratory test loss **3.606927575449253** / PPL **36.85265170399543**; extended training stopped at global update **13,263** by the precommitted patience rule; the project experimental phase is complete and Notebook 05 remains unchanged.
+Authorize the Model C extended-training probe to begin only through the resumable 06A runner after the following conditions are all true:
+
+- D-096 is formally closed with `gate_passed=true` in the persisted canonical gate artifact.
+- The execution-locked 06A preflight reproduces the frozen update-3,663 boundary and validates the D-095 extension contract.
+- The resumable runner preflight reports `Mode: FRESH EXTENSION START`, global update 3,663, epoch 4 position 0, and zero persisted extension updates before first launch.
+- Training begins only when the resumable runner is invoked with the explicit `--execute` flag.
+
+### Immutable launch boundary
+
+The first extension optimizer update is global update **3,664**. Before that update, the frozen parent state is:
+
+- Model: C
+- parameters: 33,497,600
+- completed epochs: 3
+- global update: 3,663
+- frozen validation loss reference: 3.684501
+- full-precision reproduced validation loss: 3.6845006885642775
+- extension learning rate: 2e-4 constant
+- first extension epoch: 4
+- epoch-4 effective shuffle seed: 46
+- first 10 epoch-4 example indices: `[23330, 14720, 12892, 24465, 36182, 35545, 35235, 2313, 29923, 36592]`
+
+No Notebook 04 or Notebook 05 checkpoint, metric, history, test result, or figure is overwritten by 06A.
+
+### Exact 06A resume semantics
+
+06A persistence lives only under the separate exploratory namespace:
+
+`/content/drive/MyDrive/foundation-model-from-scratch/production/extended_training/model_c/`
+
+The resumable runner may either:
+
+1. start from the immutable frozen production checkpoint at update 3,663 when no 06A latest checkpoint exists; or
+2. resume from `model_c_extension_latest.pt` when an interrupted 06A run has already persisted extension state.
+
+A 06A resume must restore, at minimum:
+
+- model state;
+- AdamW optimizer state and moment history;
+- GradScaler state;
+- CPU/CUDA RNG state;
+- global update;
+- extension update count;
+- extension epoch number;
+- exact number of updates already completed in the current epoch;
+- extension target-exposure count;
+- extension training and validation histories;
+- best validation loss/update;
+- `min_delta` material-improvement reference;
+- early-stopping patience count;
+- accumulated elapsed time.
+
+The runner must reconstruct the canonical epoch loader and deterministically skip exactly the already-persisted optimizer-update groups before processing the next group. This preserves the same epoch-indexed shuffle convention used by the frozen training engine.
+
+### Frozen extension controls
+
+D-095 remains unchanged:
+
+- constant LR: 2e-4;
+- validation every 200 extension updates plus each additional epoch end;
+- `min_delta = 0.001`;
+- patience = 6 validation events;
+- maximum 10 additional epochs;
+- maximum global update 15,873;
+- official test split remains inaccessible during training;
+- the eventual exploratory test is performed once only after validation selection is frozen;
+- controlled qualitative generation reuses the precommitted D-091 protocol.
+
+### Persistence and interruption policy
+
+The 06A `latest` checkpoint is persisted at each validation event. A Colab interruption may therefore lose at most the uncheckpointed work since the most recent validation event. On restart, the experiment resumes from the most recent persisted 06A validation checkpoint rather than reconstructing intermediate optimizer updates from logs.
+
+This is intentional: exact state can only be guaranteed from an actually persisted checkpoint. The experiment does not infer or replay unseen optimizer steps after a runtime loss.
+
+### Provenance closure carried forward
+
+Notebook 05 artifact recovery is closed by the canonical 23-artifact SHA-256 manifest on `main`. The deterministic recovery rerun originated from Notebook 05 source commit `e6bdd5ba27068659454873d28e6a2451810a815b`; the recovered artifact set was later persisted through PR #35 without changing any D-084–D-094 experimental conclusion. D-096 Gate 1 verifies those committed bytes before 06A continuation.
+
+### Why
+
+The research question is whether Model C was still materially training-duration constrained at the frozen three-epoch boundary. That question is only interpretable if continuation preserves optimizer, data-order, numerical, validation, and provenance state while changing only the allowed training duration. The explicit launch flag prevents accidental continuation, and the 06A-specific resumable checkpoint makes the experiment robust to Colab interruptions without contaminating frozen evidence.
+
+### Presentation relevance
+
+This provides a useful governance/reproducibility example: the continuation was not allowed to begin merely because weights existed. It required behavioral identity, optimizer-state continuity, deterministic data continuity, content-addressed evidence, an explicit execution boundary, and a resumable exploratory namespace.
+
+### Status at decision time
+
+- D-096: PASS / formally closed.
+- 06A execution-locked preflight: PASS.
+- 06A resumable preflight: PASS.
+- mode before first launch: FRESH EXTENSION START.
+- global update before first launch: 3,663.
+- optimizer updates executed by 06A at decision time: 0.
+- training has not yet begun.
+
+The next optimizer update, if explicitly launched, is **3,664**.
+
+---
+
+## D-099 — Notebook 06A validation-selected checkpoint and stop classification
+
+Notebook 06A extended training is complete. This decision freezes the validation-selected exploratory Model C checkpoint **before any 06A official-test evaluation is performed**.
+
+### Selected checkpoint
+
+Freeze the best 06A checkpoint at:
+
+- model: C
+- global update: **12,210**
+- extension update: **8,547**
+- validation loss: **3.599946362767629**
+- parent frozen Model C validation loss: **3.6845006885642775**
+- constant extension learning rate: **2e-4**
+
+This checkpoint was selected exclusively from the precommitted validation-loss criterion. No 06A official-test result has been observed or used in selection.
+
+### Training completion
+
+The resumable 06A runner stopped at:
+
+- final global update: **13,263**
+- extension updates: **9,600**
+- validation events: **55**
+- patience count at stop: **6**
+- stop reason: `early_stopping_patience_exhausted`
+- official test split used during training: **false**
+
+The final six validation events after the selected best checkpoint were:
+
+- 12,263 → 3.607138
+- 12,463 → 3.614607
+- 12,663 → 3.611002
+- 12,863 → 3.610469
+- 13,063 → 3.607164
+- 13,263 → 3.600369
+
+The last point approached the best again but did not improve by the precommitted `min_delta = 0.001`, so patience reached six and training stopped exactly as specified by D-095.
+
+### Outcome classification
+
+Classify the observed extension as **continued improvement followed by saturation / a noisy validation plateau**, not sustained overfitting.
+
+Why:
+
+- Model C improved materially beyond the frozen three-epoch boundary, from 3.6845006885642775 to 3.599946362767629 validation loss.
+- Meaningful new best values continued to appear through global update 12,210.
+- After the best point, validation fluctuated above the best but did not show a sustained monotonic degradation; the final event recovered to 3.600369.
+- Therefore the evidence supports that the original three-epoch Model C was training-duration constrained, while the later extension eventually reached the D-095 saturation criterion.
+
+This classification is bounded to the observed validation trajectory and does not imply a universal optimization limit for Model C.
+
+### FP16 overflow recovery provenance
+
+During continuation, the T4/FP16 GradScaler reached a scale of 1,048,576 and produced non-finite gradients on three logical updates. The saved model and optimizer tensors were independently checked and contained zero non-finite values. The 06A runner then used deterministic same-update replay with loss-scale backoff; failed attempts did not advance optimizer counters or data position.
+
+Recorded extension totals:
+
+- FP16 overflow retries: **3**
+- final FP16 loss scale: **524,288**
+
+This numerical recovery changed neither the constant learning rate nor the logical training/update count.
+
+### Test boundary
+
+D-096's precommitted one-time exploratory test policy now becomes eligible.
+
+The next step may evaluate **only the frozen update-12,210 06A best checkpoint**, exactly once, using the same official test procedure as D-092. The result must remain in the 06A exploratory namespace and must not replace the frozen Notebook 05 A/B/C test table.
+
+No further Model C training is authorized by this decision.
+
+### Presentation relevance
+
+This result separates two effects that the original fixed-budget scaling experiment could not distinguish by itself:
+
+1. Model C's better three-epoch likelihood was not yet its best attainable result under continued optimization; it was still materially duration constrained.
+2. Additional training eventually produced a validation plateau, showing why capacity scaling and training-duration scaling must be analyzed separately.
+
+The frozen Notebook 05 comparison remains unchanged because only Model C received the additional optimization budget in 06A.
+
+---
+
+## D-100 — Notebook 06A final synthesis and project experimental closure
+
+Notebook 06A is complete. This decision freezes the final exploratory conclusions after validation selection, the precommitted one-time official-test evaluation, the fixed D-091 generation probe, and final evidence packaging.
+
+### Frozen quantitative outcome
+
+The original three-epoch Model C remains part of the frozen Notebook 05 A/B/C comparison and is unchanged:
+
+- validation loss: **3.6845006885642775** (reported in Notebook 05 as 3.684501)
+- test loss: **3.6805543749744354**
+- test perplexity: **39.668379**
+- global update: **3,663**
+
+The separate 06A continuation selected its best checkpoint exclusively by validation loss:
+
+- best 06A global update: **12,210**
+- extension update: **8,547**
+- best validation loss: **3.599946362767629**
+- final training stop: global update **13,263**
+- extension updates executed: **9,600**
+- stop reason: `early_stopping_patience_exhausted`
+- classification: **continued improvement followed by saturation / noisy validation plateau**
+
+The precommitted one-time exploratory official-test evaluation then scored only the frozen update-12,210 checkpoint:
+
+- test loss: **3.606927575449253**
+- test perplexity: **36.85265170399543**
+- scored targets: **293,376**
+- improvement in test loss vs frozen three-epoch C: **0.07362679952518247**
+- official 06A test-scoring count: **1**
+- checkpoint selection changed after test: **false**
+- retuning permitted after test: **false**
+
+The held-out test improvement confirms that the validation gain generalized. Therefore the frozen three-epoch Model C was materially **training-duration constrained**. The extension later reached the precommitted saturation criterion, so the result is not that Model C could improve indefinitely.
+
+### Qualitative follow-up
+
+The fixed D-091 validation-prompt generation probe reused the exact three frozen prompts, seeds 43/44/45, temperature 0.8, top-p 0.9, and 96 new tokens.
+
+Observed interpretation:
+
+- Prompt 1 showed better topical continuity around city/building/industrial-development material than the original Model C sample.
+- Prompt 2 showed the clearest improvement: substantially less repetitive ridge-language and better topical continuity in geology/topography.
+- Prompt 3 remained unreliable and fabricated biographical/achievement details.
+
+The conservative conclusion is: **undertraining contributed to some of the original qualitative drift, but additional training did not make the small model reliably factual.** Likelihood improvement and qualitative stability are related but not interchangeable objectives.
+
+### Numerical-runtime incident closure
+
+During 06A continuation, the T4/FP16 GradScaler reached a loss scale of 1,048,576 and produced non-finite gradients on three logical updates. Diagnostic inspection found zero non-finite model tensors and zero non-finite optimizer-state tensors. The recovery runner replayed the same logical update with the same data order and restored RNG state while backing off only the FP16 loss scale.
+
+Final numerical-recovery facts:
+
+- overflow retries: **3**
+- final loss scale: **524,288**
+- failed overflow attempts did not advance optimizer counters or data position
+- LR, batch semantics, model architecture, AdamW hyperparameters, and official-test policy were unchanged
+
+This is classified as runtime numerical-stability recovery, not hyperparameter retuning.
+
+### Evidence closure
+
+The final evidence package validates:
+
+- `extension_summary.json`
+- `extension_history.json`
+- `extension_progress.json`
+- `one_time_exploratory_test.json`
+- `fixed_d091_generation.json`
+- `artifact_manifest_sha256.json`
+
+The five small JSON artifacts and manifest are committed under `results/extended_training/model_c/final_evidence/`. The complete 9,600-record `extension_history.json` is 3,151,019 bytes with SHA-256 `cdc0cb63dfcdab65f1718347a4e352b2764a9d11cd6900144cdb9e6d279ed380`. Its exact bytes were verified against the committed manifest from the uploaded six-file evidence package. The connected repository-write interface did not expose a direct multi-megabyte local-file upload path, so the full history remains in persistent Drive and the verified package rather than being reconstructed or rounded for GitHub. This transport boundary is documented explicitly in `results/extended_training/model_c/final_evidence/EVIDENCE_PACKAGE_NOTE.md`.
+
+External checkpoint hashes:
+
+- best checkpoint: `d4ead0686e01ea6457f74d780b2dc3859bd3fe6d2f2d164d257bda8f87ef4086`
+- latest checkpoint: `effe670ebfbdb8f738635939ac4426570f36b4481cd3964d343633e4fec6335b`
+
+Large checkpoint binaries remain outside Git by design.
+
+### Final scientific interpretation
+
+The controlled Notebook 05 experiment and the 06A exploratory continuation answer different questions and must remain separate:
+
+1. **Capacity scaling under equal budget:** A→B→C improved predictive quality monotonically, but B→C delivered weaker marginal efficiency per added parameter, training minute, and GiB.
+2. **Training-duration sensitivity of the largest model:** frozen Model C had not exhausted useful learning at three epochs; additional optimization improved both validation and held-out test likelihood before reaching a noisy saturation plateau.
+3. **Likelihood vs generated behavior:** more training improved some topical stability but did not eliminate hallucination or guarantee a monotonic human-visible quality ranking.
+
+No 06A checkpoint, metric, compute cost, or generated sample replaces any frozen Notebook 05 A/B/C result.
+
+### Project status
+
+The experimental portion of **Building a Foundation Model from Scratch** is complete. No additional model training, test scoring, LR search, checkpoint selection, or scope expansion is required for the core project.
+
+Remaining work is presentation/report assembly from the frozen repository evidence. Any future fine-tuning, quantization, architectural research, or additional scaling run is a new project or explicitly separate follow-on experiment.
+
+### Presentation relevance
+
+The final narrative should emphasize four lessons:
+
+- larger models improved likelihood under equal data/training controls, but marginal efficiency declined;
+- a fixed training budget can confound capacity with duration, which 06A exposed cleanly without rewriting the original experiment;
+- disciplined test sealing and fail-closed provenance gates materially improved the credibility of the project;
+- better perplexity and more training do not automatically produce factual or uniformly better generated language.
 
 ## Next decision ID
 

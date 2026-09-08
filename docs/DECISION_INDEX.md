@@ -24,9 +24,6 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 - [`decisions/04_training_pipeline.md`](decisions/04_training_pipeline.md)
 - [`decisions/05_evaluation_and_scaling.md`](decisions/05_evaluation_and_scaling.md)
 - [`decisions/06a_model_c_extended_training_probe.md`](decisions/06a_model_c_extended_training_probe.md)
-- [`decisions/06a_d098_launch_and_resume_contract.md`](decisions/06a_d098_launch_and_resume_contract.md)
-- [`decisions/06a_d099_validation_selection_and_stop_classification.md`](decisions/06a_d099_validation_selection_and_stop_classification.md)
-- [`decisions/06a_d100_final_closure.md`](decisions/06a_d100_final_closure.md)
 
 ## Chronological decision index
 
@@ -129,9 +126,9 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-095 | NB06A | Experimental design | Model C extended-training contract | Resume exact update-3,663 state; constant 2e-4 LR; val-loss early stopping with min_delta .001 and patience 6; max 10 additional epochs; preserve full train/val history separately | Tests training-duration constraint without retuning or contaminating the frozen A/B/C comparison | — | 06A |
 | D-096 | NB06A | Resume/provenance | Hard continuation gate and downstream evaluation policy | Require canonical NB05 artifacts, behavioral checkpoint identity, non-reset AdamW moments, exact data-order continuity, and precommit one-time exploratory test/fixed generation | Prevents a superficially valid but experimentally discontinuous continuation | — | 06A |
 | D-097 | NB06A | Artifact recovery | Deterministic Notebook 05 artifact recovery and content-hash manifest | Prefer exact originals; if unavailable, re-execute Notebook 05 from frozen inputs, assert frozen validation/test metrics before commit, record test re-measurement, and SHA-256 every canonical artifact | Restores repository-level evidence without synthesizing or silently changing the frozen experiment | D-096 Gate 1 refinement | 06A |
-| D-098 | NB06A | Execution contract | Launch and exact-resume execution contract | Start only after D-096/preflight PASS; resumable 06A namespace; exact checkpoint/optimizer/scaler/RNG/counter continuity; explicit `--execute` boundary | Makes interruption-safe continuation auditable without contaminating frozen evidence | — | 06A-D098 |
-| D-099 | NB06A | Validation selection | Validation-selected checkpoint and stop classification | Freeze update 12,210 at val loss 3.599946362767629; stop at 13,263 by precommitted patience; classify as continued improvement followed by saturation/noisy plateau | Separates duration constraint from overfitting and freezes selection before test | — | 06A-D099 |
-| D-100 | NB06A | Closure | Final 06A synthesis and experimental closure | One-time test loss 3.606927575449253/PPL 36.85265 generalized the gain; fixed generation showed some stability improvement but persistent hallucination; close model experiments | Answers the duration question without rewriting Notebook 05 and freezes the project for presentation assembly | — | 06A-D100 |
+| D-098 | NB06A | Execution contract | Launch and exact-resume execution contract | Start only after D-096/preflight PASS; resumable 06A namespace; exact checkpoint/optimizer/scaler/RNG/counter continuity; explicit `--execute` boundary | Makes interruption-safe continuation auditable without contaminating frozen evidence | — | 06A |
+| D-099 | NB06A | Validation selection | Validation-selected checkpoint and stop classification | Freeze update 12,210 at val loss 3.599946362767629; stop at 13,263 by precommitted patience; classify as continued improvement followed by saturation/noisy plateau | Separates duration constraint from overfitting and freezes selection before test | — | 06A |
+| D-100 | NB06A | Closure | Final 06A synthesis and experimental closure | One-time test loss 3.606927575449253/PPL 36.85265 generalized the gain; fixed generation showed some stability improvement but persistent hallucination; close model experiments | Answers the duration question without rewriting Notebook 05 and freezes the project for presentation assembly | — | 06A |
 
 ## Next ID
 
