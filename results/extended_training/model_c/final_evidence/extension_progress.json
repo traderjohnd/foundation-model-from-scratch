@@ -1,0 +1,8 @@
+{
+  "status": "complete",
+  "global_update": 13263,
+  "stop_reason": "early_stopping_patience_exhausted",
+  "fp16_overflow_retries_total": 3,
+  "final_fp16_loss_scale": 524288.0,
+  "saved_at_utc": "2026-09-08T04:47:28.897913+00:00"
+}

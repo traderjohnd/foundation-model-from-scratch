@@ -274,6 +274,18 @@ The missing Notebook 05 outputs are not merely a documentation inconvenience: D-
 
 **Presentation relevance:** the recovery is a useful governance/reproducibility example: a fail-closed gate exposed an actual evidence-retention gap, and the correction strengthens the experiment by making canonical outputs content-addressed and independently auditable.
 
+---
+
+## Supplemental 06A decisions and closure
+
+The execution and completion decisions are stored as append-only supplemental 06A records so the original D-095–D-097 contract remains intact:
+
+- **D-098 — Launch and exact-resume execution contract:** `docs/decisions/06a_d098_launch_and_resume_contract.md`
+- **D-099 — Validation-selected checkpoint and stop classification:** `docs/decisions/06a_d099_validation_selection_and_stop_classification.md`
+- **D-100 — Final synthesis and experimental closure:** `docs/decisions/06a_d100_final_closure.md`
+
+D-100 freezes the final outcome: best validation update **12,210** at loss **3.599946362767629**; one-time exploratory test loss **3.606927575449253** / PPL **36.85265170399543**; extended training stopped at global update **13,263** by the precommitted patience rule; the project experimental phase is complete and Notebook 05 remains unchanged.
+
 ## Next decision ID
 
-The next globally unique decision ID is **D-098**.
+The next globally unique decision ID is **D-101**.

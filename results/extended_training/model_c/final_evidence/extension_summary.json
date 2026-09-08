@@ -1,0 +1,20 @@
+{
+  "experiment": "06A_model_c_extended_training_probe",
+  "model_key": "C",
+  "frozen_parent_update": 3663,
+  "final_global_update": 13263,
+  "extension_updates": 9600,
+  "total_extension_targets": 157250560,
+  "constant_learning_rate": 0.0002,
+  "best_extension_validation_loss": 3.599946362767629,
+  "best_extension_validation_update": 12210,
+  "validation_events": 55,
+  "patience_count_at_stop": 6,
+  "stop_reason": "early_stopping_patience_exhausted",
+  "saturation_observed": true,
+  "elapsed_seconds": 6884.7071469170005,
+  "official_test_split_content_used": false,
+  "resume_capable": true,
+  "fp16_overflow_retries_total": 3,
+  "final_fp16_loss_scale": 524288.0
+}

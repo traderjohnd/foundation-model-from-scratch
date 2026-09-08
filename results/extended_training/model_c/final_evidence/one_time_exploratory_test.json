@@ -1,0 +1,21 @@
+{
+  "experiment": "06A_model_c_extended_training_probe",
+  "evaluation": "one_time_exploratory_official_test",
+  "selected_checkpoint_update": 12210,
+  "selected_validation_loss": 3.599946362767629,
+  "test_loss": 3.606927575449253,
+  "test_perplexity": 36.85265170399543,
+  "test_targets": 293376,
+  "frozen_three_epoch_model_c_test_loss": 3.6805543749744354,
+  "frozen_three_epoch_model_c_test_perplexity": 39.668379,
+  "test_loss_change_vs_frozen": -0.07362679952518247,
+  "test_loss_improvement_vs_frozen": 0.07362679952518247,
+  "test_stream_sha256": "9578e1403a94bf085eb55372e76d4dd74e02c89f7085368c75a1d75f5537d188",
+  "official_test_scoring_count_for_06a": 1,
+  "checkpoint_selection_changed_after_test": false,
+  "retuning_permitted_after_test": false,
+  "label": "exploratory Model C extended-training evidence",
+  "gpu_name": "Tesla T4",
+  "precision": "fp16",
+  "scored_at_utc": "2026-09-08T15:16:26.024179+00:00"
+}
