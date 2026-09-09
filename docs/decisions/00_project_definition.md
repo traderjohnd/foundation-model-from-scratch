@@ -98,3 +98,18 @@ Each decision preserves the question, selected choice, **why**, alternatives whe
 **Selected choice:** update canonical documentation after major phases: planning, tokenizer/corpus, architecture, training, evaluation.  
 **Why:** Preserves rationale while fresh and makes new context windows efficient.  
 **Presentation relevance:** final narrative is accumulated rather than reconstructed.
+
+---
+
+## D-101 — Publication claim-to-evidence contract
+
+**Date:** 2026-09-09.  
+**Phase:** publication and presentation assembly following D-100 experimental closure.  
+**Selected choice:** establish one publication claim-to-evidence map at `docs/publication/CLAIM_EVIDENCE_MAP.md` before drafting the executive narrative. Map each principal claim to exact artifacts, relevant decision IDs, existing figures or explicitly pending figure sources, and the limits of its interpretation. Use stable C-01–C-08 claim labels separate from global D- decision IDs.  
+**Why:** the README, presentation, article, and monograph need a common factual foundation. A pinned evidence snapshot and explicit qualifiers prevent wording drift, budget ambiguity, or mixing the original scaling comparison with the exploratory continuation.  
+**Alternatives considered:** draft each deliverable independently; use the decision register alone without mapping public conclusions to result artifacts; start by expanding all decisions into long-form prose.  
+**Evidence/context:** prepared from repository snapshot `47c6973a898e770eceb77f35ad91a6f2c1afc154`, the frozen Notebook 05 outputs, and completed Notebook 06A records through D-100. The map preserves the D-097 test re-measurement disclosure and distinguishes the selected 06A checkpoint from its final stopping point. Full 06A history remains an external, hash-identified figure source as already documented at closure.  
+**Interpretation rules:** distinguish measured outcomes, arithmetic comparisons, bounded inferences, protocol-defined plateau classification, and small-sample qualitative observations. A/B/C share corpus and training exposures, not equal compute. The original result tables retain three-epoch Model C.  
+**Supersedes:** none. This adds a publication assembly contract and preserves D-094/D-100 experimental closure.  
+**Presentation relevance:** C-01–C-06 supply the scientific narrative; C-07/C-08 supply concrete decision/provenance examples. This decision does not fix monograph length, delivery dates, packaging scope, or new experimental work.  
+**Next chunk:** draft the concise executive narrative using the map and frozen figures, then review that meaningful chunk.

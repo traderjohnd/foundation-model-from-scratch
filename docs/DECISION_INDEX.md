@@ -129,7 +129,8 @@ The detailed rationale, alternatives, evidence, and presentation relevance live 
 | D-098 | NB06A | Execution contract | Launch and exact-resume execution contract | Start only after D-096/preflight PASS; resumable 06A namespace; exact checkpoint/optimizer/scaler/RNG/counter continuity; explicit `--execute` boundary | Makes interruption-safe continuation auditable without contaminating frozen evidence | — | 06A |
 | D-099 | NB06A | Validation selection | Validation-selected checkpoint and stop classification | Freeze update 12,210 at val loss 3.599946362767629; stop at 13,263 by precommitted patience; classify as continued improvement followed by saturation/noisy plateau | Separates duration constraint from overfitting and freezes selection before test | — | 06A |
 | D-100 | NB06A | Closure | Final 06A synthesis and experimental closure | One-time test loss 3.606927575449253/PPL 36.85265 generalized the gain; fixed generation showed some stability improvement but persistent hallucination; close model experiments | Answers the duration question without rewriting Notebook 05 and freezes the project for presentation assembly | — | 06A |
+| D-101 | Publication | Evidence communication | Publication claim-to-evidence contract | Map C-01–C-08 to pinned artifacts, decision IDs, figures, and limits before narrative drafting | Keeps public wording consistent and preserves frozen A/B/C vs exploratory 06A boundaries | — | 00 |
 
 ## Next ID
 
-**D-101** is the next globally unique decision ID.
+**D-102** is the next globally unique decision ID.

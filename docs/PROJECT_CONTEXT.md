@@ -18,7 +18,9 @@ Canonical notebook sequence:
 
 No additional model training, LR search, checkpoint selection, official-test scoring, or scope expansion is required for the core project. Remaining work is presentation/report assembly from frozen evidence. Fine-tuning, quantization, additional scaling, or architecture research are separate future projects/follow-ons.
 
-The next globally unique decision ID is **D-101**.
+Publication/presentation assembly has started under **D-101**. The first artifact is [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md), linking the principal public claims to pinned evidence, decision IDs, figures, and interpretation limits. The next chunk is the concise executive narrative built from that map.
+
+The next globally unique decision ID is **D-102**.
 
 ## Objective
 > **Build a series of small decoder-only Transformer language models from scratch and systematically scale them to observe how model capacity affects learning, compute cost, and generated language.**
@@ -35,6 +37,7 @@ Higher-level question:
 - `docs/DECISION_INDEX.md` — append-only project-wide chronological index
 - `docs/decisions/` — one canonical decision register per project phase/notebook
 - `docs/provenance/` — audit/recovery records that matter to reproducibility but are not decision registers
+- `docs/publication/CLAIM_EVIDENCE_MAP.md` — publication/presentation claim wording, pinned supporting evidence, and interpretation limits
 
 Notebook 06A decisions **D-095 through D-100** are consolidated in the single canonical register `docs/decisions/06a_model_c_extended_training_probe.md`. The Notebook 05 artifact-retention incident and recovery are retained separately at `docs/provenance/05_evaluation_artifact_recovery.md`.
 

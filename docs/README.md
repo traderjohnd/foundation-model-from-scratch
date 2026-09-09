@@ -33,11 +33,18 @@ Decision IDs are globally unique and append-only. Consolidating decisions into a
 
 Machine-readable experimental evidence is stored under `results/`. Presentation-ready figures are stored under `figures/`. Large model checkpoints remain outside Git by design when appropriate, with hashes recorded in repository manifests.
 
+## Publication and presentation assembly
+
+- [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) — D-101's map from proposed publication claims to pinned frozen evidence, decision IDs, figures, and interpretation limits. Read before drafting downstream narratives.
+
+D-101 is recorded in the project-wide `decisions/00_project_definition.md` register. The claim map is a communication artifact; experimental evidence remains under `results/`.
+
 ## Reading order for presentation/report work
 
 1. `PROJECT_CONTEXT.md`
-2. `DECISION_INDEX.md`
-3. the relevant phase register under `docs/decisions/`
-4. canonical evidence under `results/`
-5. presentation figures under `figures/`
-6. provenance notes only when audit/recovery history is relevant
+2. `publication/CLAIM_EVIDENCE_MAP.md`
+3. `DECISION_INDEX.md`
+4. the relevant phase register under `docs/decisions/`
+5. canonical evidence under `results/`
+6. presentation figures under `figures/`
+7. provenance notes only when audit/recovery history is relevant
