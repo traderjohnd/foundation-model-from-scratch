@@ -36,6 +36,7 @@ Machine-readable experimental evidence is stored under `results/`. Presentation-
 ## Publication and presentation assembly
 
 - [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) - D-101's map from proposed publication claims to pinned frozen evidence, decision IDs, figures, and interpretation limits. Read before drafting downstream narratives.
+- [`publication/EXECUTIVE_NARRATIVE.md`](publication/EXECUTIVE_NARRATIVE.md) - the first STE-style narrative draft for the README, presentation, article, and monograph.
 
 D-101 is recorded in the project-wide `decisions/00_project_definition.md` register. The claim map is a communication artifact; experimental evidence remains under `results/`.
 
@@ -43,8 +44,9 @@ D-101 is recorded in the project-wide `decisions/00_project_definition.md` regis
 
 1. `PROJECT_CONTEXT.md`
 2. `publication/CLAIM_EVIDENCE_MAP.md`
-3. `DECISION_INDEX.md`
-4. the relevant phase register under `docs/decisions/`
-5. canonical evidence under `results/`
-6. presentation figures under `figures/`
-7. provenance notes only when audit/recovery history is relevant
+3. `publication/EXECUTIVE_NARRATIVE.md`
+4. `DECISION_INDEX.md`
+5. the relevant phase register under `docs/decisions/`
+6. canonical evidence under `results/`
+7. presentation figures under `figures/`
+8. provenance notes only when audit/recovery history is relevant

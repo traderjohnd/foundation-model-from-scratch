@@ -18,7 +18,9 @@ Canonical notebook sequence:
 
 No additional model training, LR search, checkpoint selection, official-test scoring, or scope expansion is required for the core project. Remaining work is presentation/report assembly from frozen evidence. Fine-tuning, quantization, additional scaling, or architecture research are separate future projects/follow-ons.
 
-Publication/presentation assembly has started under **D-101**. The first artifact is [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md), linking the principal public claims to pinned evidence, decision IDs, figures, and interpretation limits. The next chunk is the concise executive narrative built from that map.
+Publication and presentation work started under **D-101**. The [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) file links public claims to evidence, decisions, figures, and limits.
+
+The first [`publication/EXECUTIVE_NARRATIVE.md`](publication/EXECUTIVE_NARRATIVE.md) draft now applies STE-style rules. Review of this draft is the next publication step.
 
 The next globally unique decision ID is **D-102**.
 
@@ -38,6 +40,7 @@ Higher-level question:
 - `docs/decisions/` - one canonical decision register per project phase/notebook
 - `docs/provenance/` - audit/recovery records that matter to reproducibility but are not decision registers
 - `docs/publication/CLAIM_EVIDENCE_MAP.md` - publication/presentation claim wording, pinned supporting evidence, and interpretation limits
+- `docs/publication/EXECUTIVE_NARRATIVE.md` - concise STE-style narrative for adaptation into the README, presentation, article, and monograph
 
 Notebook 06A decisions **D-095 through D-100** are consolidated in the single canonical register `docs/decisions/06a_model_c_extended_training_probe.md`. The Notebook 05 artifact-retention incident and recovery are retained separately at `docs/provenance/05_evaluation_artifact_recovery.md`.
 
@@ -243,7 +246,7 @@ External checkpoints (not committed by design):
 - latest SHA-256: `effe670ebfbdb8f738635939ac4426570f36b4481cd3964d343633e4fec6335b`
 
 ## Final project conclusions
-1. **Capacity helps under equal budget:** A→B→C improved validation and test likelihood monotonically.
+1. **Capacity helps within the tested range:** A→B→C improved validation and test likelihood under the equal-budget protocol. These three sizes do not support numerical extrapolation to larger models.
 2. **Marginal efficiency declines:** B→C delivered much less quality gain per added parameter/time/memory than A→B.
 3. **Budget can confound capacity with duration:** 06A showed the largest model was still undertrained at the original three-epoch cutoff.
 4. **Additional training eventually saturated:** extended C improved materially, then reached the precommitted noisy-plateau stopping criterion.
