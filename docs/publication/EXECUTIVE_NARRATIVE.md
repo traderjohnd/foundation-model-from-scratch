@@ -1,98 +1,90 @@
 # Executive Narrative
 
-Draft 1 | Prepared 2026-09-09 | STE style | Evidence contract D-101
+Draft 2 | Prepared 2026-09-09 | STE style | Evidence contract D-101
 
-## The question
+## 1. The question
 
 Many small language-model projects show that a model can learn. This project asked a more useful question.
 
-How does model capacity affect predictive quality and resource cost when three models use the same corpus and training-exposure budget?
+How does model capacity change learning and computational cost when three models use one corpus and one training-exposure budget?
 
-The experiment compared three small decoder-only Transformers with about 7 million, 17 million, and 34 million parameters. Each model started from random weights.
+The experiment compared decoder-only Transformers with about 7 million, 17 million, and 34 million parameters. Each model started from random weights.
 
-## What I built
+The models used the same 20,000,000-token corpus, tokenizer, 512-token context, packing rule, and three-epoch protocol. Each model processed 59,999,232 target exposures.
 
-I built the model architecture and training loop with PyTorch. I also trained a 16,384-token byte-level BPE tokenizer from scratch.
+## 2. What we made
+
+I built three small decoder-only Transformers, a 16,384-token byte-level BPE tokenizer, and an explicit PyTorch training pipeline.
 
 The architecture used causal attention, RoPE, RMSNorm, SwiGLU, pre-norm residual blocks, and tied input and output weights.
 
-Hugging Face Datasets and Tokenizers supplied the data and tokenizer tools. I did not use pretrained weights, a pretrained tokenizer, or HF Trainer.
+The project used PyTorch primitives and Hugging Face Datasets and Tokenizers. It used no Trainer, pretrained tokenizer, or pretrained weights.
 
-The source data came from a fixed revision of WikiText-103. The data process normalized the text and reconstructed 28,472 training articles.
+This choice exposed the main training mechanics instead of placing them behind a high-level training framework.
 
-The tokenizer used the full normalized training split. The model corpus contained exactly 20,000,000 tokens from that split.
-
-Each model used a 512-token context and the same causal packing rule. Each model processed 59,999,232 target exposures during three epochs.
+The source data came from a fixed revision of WikiText-103. The process normalized the text and reconstructed 28,472 training articles.
 
 The official validation split controlled checkpoint selection. The official test split remained sealed until the original experiment froze all training and selection decisions.
 
-## What the original comparison found
+## 3. What we found
 
 Predictive quality improved at every tested size. Validation perplexity decreased from 53.09 to 43.66 to 39.83 across Models A, B, and C.
 
-The final test results kept the same order. Test perplexity decreased from 52.21 to 43.47 to 39.67.
+Test perplexity decreased from 52.21 to 43.47 to 39.67. Recorded training time increased from 11.78 to 23.55 to 42.22 minutes.
 
-Resource cost also increased. Recorded training time increased from 11.78 to 23.55 to 42.22 minutes on the same Tesla T4 hardware.
+Peak GPU allocation increased from 4.94 to 7.29 to 10.62 GiB on the same Tesla T4 hardware.
 
-Peak GPU allocation increased from 4.94 to 7.29 to 10.62 GiB.
+The first finding was diminishing marginal efficiency. Across the two approximate doubling intervals, the second increase delivered a smaller validation-loss gain.
 
-Model C produced the best absolute likelihood. However, the B-to-C step produced less validation-loss improvement per added parameter, minute, and GiB.
+For B-to-C, efficiency retained only 26.9 percent per added parameter, 29.6 percent per minute, and 33.2 percent per GiB.
 
-For validation loss, B-to-C kept only 26.9 percent of the A-to-B efficiency per added parameter. The comparable time figure was 29.6 percent.
+The second finding was that all three models still improved at the end of the budget. Data exposure and training duration constrained learning, not capacity.
 
-The comparable peak-memory figure was 33.2 percent.
+The third finding was that the model with the best perplexity did not produce the best text in every fixed generation probe.
 
-These intervals show a local pattern, not a law for larger models. Published research often represents language-model loss with power laws, not linear relationships.
+These results show a local pattern, not a law for larger models. Language-model loss often follows a power law instead of a linear relationship.
 
-The rate depends on model size, data, compute, optimization, and architecture. Extrapolation needs more sizes and balanced budgets.
+The rate depends on model size, data, compute, optimization, and architecture. Extrapolation requires more sizes, multiple seeds, and balanced budgets.
 
-## What the Model C extension clarified
+## 4. What Notebook 06A showed
 
-Model C ended the original budget at its best validation point. The project then examined its training-duration limit.
+Notebook 06A resumed Model C from update 3,663 and continued through update 13,263 under a fixed experimental contract.
 
-A separate experiment resumed Model C from the exact update-3,663 state. The resume gate examined the model, optimizer, scaler, counters, data order, and recorded hashes.
+The exact-resume gate examined the model, optimizer, scaler, counters, data order, and recorded hashes before training continued.
 
-The extension used the same corpus and a constant learning rate of 2e-4. Validation loss selected the best checkpoint at update 12,210.
+The best checkpoint occurred at update 12,210. Validation loss decreased from 3.684501 to 3.599946.
 
-Validation loss decreased from 3.684501 to 3.599946. The precommitted exploratory test then measured only the selected extension checkpoint.
+The precommitted one-time test produced a loss of 3.606928 and perplexity of 36.85. Frozen Model C had 3.680554 and 39.67.
 
-Test perplexity decreased from 39.67 to 36.85.
+Model C improved with more training, then reached a validation plateau, and the precommitted stop rule ended the run.
 
-Model C was training-duration constrained under the specified continuation policy. The experiment does not isolate the value of more unique data or another learning-rate policy.
+D-099 and D-100 classify the result as continued improvement followed by saturation / noisy validation plateau.
 
-The run later stopped at update 13,263 under the fixed patience rule. The final pattern showed continued improvement and then a noisy validation plateau.
+The extension used the same corpus and a constant learning rate of 2e-4. It does not isolate unique-data value or another learning-rate policy.
 
-## What the generated text showed
+## 5. What the models can and cannot do
 
-The fixed generation probes did not produce a stable quality order across Models A, B, and C.
+The models produce text continuations that read like passages from a Wikipedia article. They do not answer questions because they did not receive instruction training.
 
-Lower perplexity did not make every sampled continuation better. Repetition, topic drift, invented entities, and factual errors remained visible.
+## 6. What the work shows
 
-Extended Model C improved topical continuity in two fixed prompts. The third prompt still fabricated biographical and achievement details.
+The work demonstrates technical judgment through explicit architecture, data, optimization, evaluation, and stopping decisions.
 
-This small probe does not measure factual accuracy. Likelihood, sampled text quality, and factual reliability remain different evaluation questions.
+It demonstrates controlled experimentation through shared budgets, fixed evaluation streams, sealed test use, deterministic resume checks, and precommitted selection rules.
 
-## Why the process matters
+It also demonstrates traceable evidence. The repository connects each major claim to decisions, metrics, figures, tests, and provenance records.
 
-The project recorded 100 technical and experimental decisions before publication work started. Each major decision includes its rationale, alternatives, and later evidence.
+A controlled learning-rate probe changed the provisional choice from 3e-4 to 2e-3. Evidence changed the implementation before the primary runs.
 
-A controlled learning-rate probe changed the provisional choice from 3e-4 to 2e-3.
+A fail-closed evidence gate later found missing repository outputs. The recovery process reproduced the frozen results and disclosed the test re-measurement.
 
-A fail-closed evidence gate also found missing repository outputs after Notebook 05. The recovery process reproduced the frozen results and recorded the test re-measurement.
-
-The Model C checkpoint then had to reproduce its recorded validation loss before one more update.
+The project recorded 100 technical and experimental decisions before publication work started. Each major decision includes its rationale, alternatives, and evidence.
 
 I directed the experiment, selected its scope, approved the material decisions, ran the Colab work, and examined the evidence. AI tools helped draft code, documentation, and analysis.
 
-The repository records the implementation, decisions, tests, metrics, figures, and provenance. Readers can examine the evidence behind each public claim.
+The evidence supports a bounded conclusion. More capacity improved likelihood within the tested range, but marginal resource efficiency declined.
 
-## The conclusion
-
-Across these three tested models, more capacity improved predictive quality and reduced marginal resource efficiency. The separate extension also exposed a duration constraint.
-
-More training improved Model C before the validation plateau. Better likelihood still did not produce reliable factual text or uniformly better sampled text.
-
-The project therefore shows more than a successful training run. It shows how controlled decisions, evidence boundaries, and explicit limits make an AI experiment credible.
+More training improved Model C before saturation. Better likelihood still did not produce reliable factual text or uniformly better sampled text.
 
 ## Evidence links
 
