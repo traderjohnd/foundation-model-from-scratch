@@ -4,8 +4,8 @@ The project documentation is organized by purpose so current state, historical d
 
 ## Canonical project documents
 
-- `PROJECT_CONTEXT.md` — concise current-state and resume document. Read this first when continuing the project.
-- `DECISION_INDEX.md` — chronological index of all globally unique project decisions.
+- `PROJECT_CONTEXT.md` - concise current-state and resume document. Read this first when continuing the project.
+- `DECISION_INDEX.md` - chronological index of all globally unique project decisions.
 
 ## Decision registers
 
@@ -27,7 +27,7 @@ Decision IDs are globally unique and append-only. Consolidating decisions into a
 
 `docs/provenance/` contains audit/recovery records that are important to reproducibility but are not themselves the canonical decision register.
 
-- `05_evaluation_artifact_recovery.md` — records the Notebook 05 repository-persistence discrepancy, fail-closed recovery rule, and final resolution.
+- `05_evaluation_artifact_recovery.md` - records the Notebook 05 repository-persistence discrepancy, fail-closed recovery rule, and final resolution.
 
 ## Evidence and outputs
 
@@ -35,7 +35,7 @@ Machine-readable experimental evidence is stored under `results/`. Presentation-
 
 ## Publication and presentation assembly
 
-- [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) — D-101's map from proposed publication claims to pinned frozen evidence, decision IDs, figures, and interpretation limits. Read before drafting downstream narratives.
+- [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) - D-101's map from proposed publication claims to pinned frozen evidence, decision IDs, figures, and interpretation limits. Read before drafting downstream narratives.
 
 D-101 is recorded in the project-wide `decisions/00_project_definition.md` register. The claim map is a communication artifact; experimental evidence remains under `results/`.
 

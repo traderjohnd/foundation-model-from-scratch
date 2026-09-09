@@ -1,4 +1,4 @@
-# Building a Foundation Model from Scratch — Project Context
+# Building a Foundation Model from Scratch - Project Context
 
 ## Purpose
 This is the concise source of truth for resuming the project without reconstructing prior chats.
@@ -9,12 +9,12 @@ GitHub repository: `traderjohnd/foundation-model-from-scratch`
 The **experimental portion of the project is complete**.
 
 Canonical notebook sequence:
-- **Notebook 01 — Data Preparation & Corpus Audit** — complete
-- **Notebook 02 — Tokenizer Training & Corpus Construction** — complete
-- **Notebook 03 — Model Architecture** — complete
-- **Notebook 04 — Training Pipeline** — complete
-- **Notebook 05 — Evaluation & Scaling** — complete and frozen controlled A/B/C experiment
-- **Notebook 06A — Model C Extended-Training Probe** — complete exploratory follow-on; separate from Notebook 05
+- **Notebook 01 - Data Preparation & Corpus Audit** - complete
+- **Notebook 02 - Tokenizer Training & Corpus Construction** - complete
+- **Notebook 03 - Model Architecture** - complete
+- **Notebook 04 - Training Pipeline** - complete
+- **Notebook 05 - Evaluation & Scaling** - complete and frozen controlled A/B/C experiment
+- **Notebook 06A - Model C Extended-Training Probe** - complete exploratory follow-on; separate from Notebook 05
 
 No additional model training, LR search, checkpoint selection, official-test scoring, or scope expansion is required for the core project. Remaining work is presentation/report assembly from frozen evidence. Fine-tuning, quantization, additional scaling, or architecture research are separate future projects/follow-ons.
 
@@ -32,12 +32,12 @@ Higher-level question:
 > **At what point does increasing model capacity produce diminishing returns when training data and compute are constrained?**
 
 ## Canonical documentation
-- `docs/README.md` — documentation map and reading order
-- `docs/PROJECT_CONTEXT.md` — current-state/resume document
-- `docs/DECISION_INDEX.md` — append-only project-wide chronological index
-- `docs/decisions/` — one canonical decision register per project phase/notebook
-- `docs/provenance/` — audit/recovery records that matter to reproducibility but are not decision registers
-- `docs/publication/CLAIM_EVIDENCE_MAP.md` — publication/presentation claim wording, pinned supporting evidence, and interpretation limits
+- `docs/README.md` - documentation map and reading order
+- `docs/PROJECT_CONTEXT.md` - current-state/resume document
+- `docs/DECISION_INDEX.md` - append-only project-wide chronological index
+- `docs/decisions/` - one canonical decision register per project phase/notebook
+- `docs/provenance/` - audit/recovery records that matter to reproducibility but are not decision registers
+- `docs/publication/CLAIM_EVIDENCE_MAP.md` - publication/presentation claim wording, pinned supporting evidence, and interpretation limits
 
 Notebook 06A decisions **D-095 through D-100** are consolidated in the single canonical register `docs/decisions/06a_model_c_extended_training_probe.md`. The Notebook 05 artifact-retention incident and recovery are retained separately at `docs/provenance/05_evaluation_artifact_recovery.md`.
 
@@ -164,7 +164,7 @@ Qualitative generation under fixed prompts/decoding did **not** produce a stable
 
 Notebook 05 decisions are D-084 through D-094. The frozen Notebook 05 A/B/C comparison must never be replaced by 06A results.
 
-## Notebook 06A — completed Model C extended-training probe
+## Notebook 06A - completed Model C extended-training probe
 Research question: Was Model C materially training-duration constrained at the frozen three-epoch boundary?
 
 ### Resume/provenance gate
@@ -251,6 +251,8 @@ External checkpoints (not committed by design):
 6. **Governance/provenance mattered:** fail-closed gates exposed an actual evidence-retention gap, exact resume was behaviorally verified, the test split stayed sealed until selection froze, and the 06A test was scored once only.
 
 ## Presentation handoff
+
+Writing preference: do not use em dashes in project documents or responses. Use ordinary hyphens or other suitable punctuation.
 The presentation/report should now be built from frozen evidence, not from additional experiments. The central narrative is:
 
 **Controlled scale improved predictive quality, but with declining marginal efficiency. The largest model was also duration constrained under the equal-budget experiment, and a separately governed continuation showed additional held-out gains before saturation. Better likelihood did not automatically produce factual or uniformly better generated language.**
