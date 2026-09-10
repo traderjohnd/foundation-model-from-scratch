@@ -1,4 +1,4 @@
-# Building a Foundation Model from Scratch — Project Context
+# Building a Foundation Model from Scratch - Project Context
 
 ## Purpose
 This is the concise source of truth for resuming the project without reconstructing prior chats.
@@ -9,16 +9,20 @@ GitHub repository: `traderjohnd/foundation-model-from-scratch`
 The **experimental portion of the project is complete**.
 
 Canonical notebook sequence:
-- **Notebook 01 — Data Preparation & Corpus Audit** — complete
-- **Notebook 02 — Tokenizer Training & Corpus Construction** — complete
-- **Notebook 03 — Model Architecture** — complete
-- **Notebook 04 — Training Pipeline** — complete
-- **Notebook 05 — Evaluation & Scaling** — complete and frozen controlled A/B/C experiment
-- **Notebook 06A — Model C Extended-Training Probe** — complete exploratory follow-on; separate from Notebook 05
+- **Notebook 01 - Data Preparation & Corpus Audit** - complete
+- **Notebook 02 - Tokenizer Training & Corpus Construction** - complete
+- **Notebook 03 - Model Architecture** - complete
+- **Notebook 04 - Training Pipeline** - complete
+- **Notebook 05 - Evaluation & Scaling** - complete and frozen controlled A/B/C experiment
+- **Notebook 06A - Model C Extended-Training Probe** - complete exploratory follow-on; separate from Notebook 05
 
 No additional model training, LR search, checkpoint selection, official-test scoring, or scope expansion is required for the core project. Remaining work is presentation/report assembly from frozen evidence. Fine-tuning, quantization, additional scaling, or architecture research are separate future projects/follow-ons.
 
-The next globally unique decision ID is **D-101**.
+Publication and presentation work started under **D-101**. The [`publication/CLAIM_EVIDENCE_MAP.md`](publication/CLAIM_EVIDENCE_MAP.md) file links public claims to evidence, decisions, figures, and limits.
+
+The first [`publication/EXECUTIVE_NARRATIVE.md`](publication/EXECUTIVE_NARRATIVE.md) draft now applies STE-style rules. Review of this draft is the next publication step.
+
+The next globally unique decision ID is **D-102**.
 
 ## Objective
 > **Build a series of small decoder-only Transformer language models from scratch and systematically scale them to observe how model capacity affects learning, compute cost, and generated language.**
@@ -30,11 +34,13 @@ Higher-level question:
 > **At what point does increasing model capacity produce diminishing returns when training data and compute are constrained?**
 
 ## Canonical documentation
-- `docs/README.md` — documentation map and reading order
-- `docs/PROJECT_CONTEXT.md` — current-state/resume document
-- `docs/DECISION_INDEX.md` — append-only project-wide chronological index
-- `docs/decisions/` — one canonical decision register per project phase/notebook
-- `docs/provenance/` — audit/recovery records that matter to reproducibility but are not decision registers
+- `docs/README.md` - documentation map and reading order
+- `docs/PROJECT_CONTEXT.md` - current-state/resume document
+- `docs/DECISION_INDEX.md` - append-only project-wide chronological index
+- `docs/decisions/` - one canonical decision register per project phase/notebook
+- `docs/provenance/` - audit/recovery records that matter to reproducibility but are not decision registers
+- `docs/publication/CLAIM_EVIDENCE_MAP.md` - publication/presentation claim wording, pinned supporting evidence, and interpretation limits
+- `docs/publication/EXECUTIVE_NARRATIVE.md` - concise STE-style narrative for adaptation into the README, presentation, article, and monograph
 
 Notebook 06A decisions **D-095 through D-100** are consolidated in the single canonical register `docs/decisions/06a_model_c_extended_training_probe.md`. The Notebook 05 artifact-retention incident and recovery are retained separately at `docs/provenance/05_evaluation_artifact_recovery.md`.
 
@@ -134,7 +140,7 @@ Validation:
 | Best validation loss | **3.972054** | **3.776427** | **3.684501** |
 | Best validation PPL | **53.09** | **43.66** | **39.83** |
 | Wall time | 11.78 min | 23.55 min | 42.22 min |
-| Peak GPU memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
+| Peak memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
 
 ## Frozen Notebook 05 evaluation and scaling results
 Official test over **293,376 scored targets/model**:
@@ -161,7 +167,7 @@ Qualitative generation under fixed prompts/decoding did **not** produce a stable
 
 Notebook 05 decisions are D-084 through D-094. The frozen Notebook 05 A/B/C comparison must never be replaced by 06A results.
 
-## Notebook 06A — completed Model C extended-training probe
+## Notebook 06A - completed Model C extended-training probe
 Research question: Was Model C materially training-duration constrained at the frozen three-epoch boundary?
 
 ### Resume/provenance gate
@@ -214,7 +220,7 @@ The same three validation-derived prompts, seeds 43/44/45, temperature 0.8, top-
 
 Interpretation:
 - prompts 1 and 2 showed better topical continuity / less repetition than frozen Model C, especially the geology prompt;
-- prompt 3 remained strongly hallucinatory and fabricated biographical/achievement details;
+- prompt 3 remained strongly hallucinatory and invented biographical/achievement details;
 - conclusion: **undertraining contributed to some original qualitative drift, but more training did not make the model reliably factual.**
 
 ### Final evidence
@@ -240,15 +246,17 @@ External checkpoints (not committed by design):
 - latest SHA-256: `effe670ebfbdb8f738635939ac4426570f36b4481cd3964d343633e4fec6335b`
 
 ## Final project conclusions
-1. **Capacity helps under equal budget:** A→B→C improved validation and test likelihood monotonically.
-2. **Marginal efficiency declines:** B→C delivered much less quality gain per added parameter/time/memory than A→B.
+1. **Capacity helps within the tested range:** A→B→C improved validation and test likelihood under the equal-budget protocol. These three sizes do not support numerical extrapolation to larger models.
+2. **Marginal efficiency declines:** validation-loss gain per approximate parameter doubling decreased from **0.164 nats** for A→B to **0.093 nats** for B→C.
 3. **Budget can confound capacity with duration:** 06A showed the largest model was still undertrained at the original three-epoch cutoff.
-4. **Additional training eventually saturated:** extended C improved materially, then reached the precommitted noisy-plateau stopping criterion.
+4. **More training eventually reached saturation:** extended C improved materially, then reached the precommitted noisy-plateau stopping criterion.
 5. **Likelihood is not the same as sample quality or factuality:** extra training improved some topical stability but did not eliminate hallucination.
 6. **Governance/provenance mattered:** fail-closed gates exposed an actual evidence-retention gap, exact resume was behaviorally verified, the test split stayed sealed until selection froze, and the 06A test was scored once only.
 
 ## Presentation handoff
-The presentation/report should now be built from frozen evidence, not from additional experiments. The central narrative is:
+
+Writing preference: do not use em dashes in project documents or responses. Use ordinary hyphens or other suitable punctuation.
+The presentation and report must now use frozen evidence, not more experiments. The central narrative is:
 
 **Controlled scale improved predictive quality, but with declining marginal efficiency. The largest model was also duration constrained under the equal-budget experiment, and a separately governed continuation showed additional held-out gains before saturation. Better likelihood did not automatically produce factual or uniformly better generated language.**
 
