@@ -40,6 +40,8 @@ Machine-readable experimental evidence is stored under `results/`. Presentation-
 
 D-101 is recorded in the project-wide `decisions/00_project_definition.md` register. The claim map is a communication artifact; experimental evidence remains under `results/`.
 
+Public summaries use **wall time**, **peak memory**, and validation-loss gain per approximate parameter doubling. The public comparison is **0.164 nats** for A→B and **0.093 nats** for B→C.
+
 ## Reading order for presentation/report work
 
 1. `PROJECT_CONTEXT.md`

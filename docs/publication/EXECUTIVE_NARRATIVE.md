@@ -1,6 +1,6 @@
 # Executive Narrative
 
-Draft 2 | Prepared 2026-09-09 | STE style | Evidence contract D-101
+Draft 3 | Prepared 2026-09-10 | Evidence contract D-101
 
 ## 1. The question
 
@@ -14,7 +14,7 @@ The models used the same 20,000,000-token corpus, tokenizer, 512-token context, 
 
 ## 2. What we made
 
-I built three small decoder-only Transformers, a 16,384-token byte-level BPE tokenizer, and an explicit PyTorch training pipeline.
+I made three small decoder-only Transformers, a 16,384-token byte-level BPE tokenizer, and an explicit PyTorch training pipeline.
 
 The architecture used causal attention, RoPE, RMSNorm, SwiGLU, pre-norm residual blocks, and tied input and output weights.
 
@@ -22,7 +22,7 @@ The project used PyTorch primitives and Hugging Face Datasets and Tokenizers. It
 
 This choice exposed the main training mechanics instead of placing them behind a high-level training framework.
 
-The source data came from a fixed revision of WikiText-103. The process normalized the text and reconstructed 28,472 training articles.
+The source data came from a fixed revision of WikiText-103. The process normalized the text and assembled 28,472 training articles.
 
 The official validation split controlled checkpoint selection. The official test split remained sealed until the original experiment froze all training and selection decisions.
 
@@ -30,13 +30,11 @@ The official validation split controlled checkpoint selection. The official test
 
 Predictive quality improved at every tested size. Validation perplexity decreased from 53.09 to 43.66 to 39.83 across Models A, B, and C.
 
-Test perplexity decreased from 52.21 to 43.47 to 39.67. Recorded training time increased from 11.78 to 23.55 to 42.22 minutes.
+Test perplexity decreased from 52.21 to 43.47 to 39.67. Wall time increased from 11.78 to 23.55 to 42.22 minutes.
 
-Peak GPU allocation increased from 4.94 to 7.29 to 10.62 GiB on the same Tesla T4 hardware.
+Peak memory increased from 4.94 to 7.29 to 10.62 GiB on the same Tesla T4 hardware.
 
-The first finding was diminishing marginal efficiency. Across the two approximate doubling intervals, the second increase delivered a smaller validation-loss gain.
-
-For B-to-C, efficiency retained only 26.9 percent per added parameter, 29.6 percent per minute, and 33.2 percent per GiB.
+The first finding was diminishing marginal efficiency. The validation-loss gain per approximate parameter doubling decreased from 0.164 nats to 0.093 nats.
 
 The second finding was that all three models still improved at the end of the budget. Data exposure and training duration constrained learning, not capacity.
 
@@ -44,7 +42,7 @@ The third finding was that the model with the best perplexity did not produce th
 
 These results show a local pattern, not a law for larger models. Language-model loss often follows a power law instead of a linear relationship.
 
-The rate depends on model size, data, compute, optimization, and architecture. Extrapolation requires more sizes, multiple seeds, and balanced budgets.
+The rate depends on model size, data, compute, optimization, and architecture. Extrapolation needs more sizes, multiple seeds, and balanced budgets.
 
 ## 4. What Notebook 06A showed
 
@@ -64,15 +62,15 @@ The extension used the same corpus and a constant learning rate of 2e-4. It does
 
 ## 5. What the models can and cannot do
 
-The models produce text continuations that read like passages from a Wikipedia article. They do not answer questions because they did not receive instruction training.
+These models complete Wikipedia-style text. They do not answer questions. GPT-2 small used about four times Model C's 34 million parameters and about 500 times its 20 million training tokens.
 
 ## 6. What the work shows
 
-The work demonstrates technical judgment through explicit architecture, data, optimization, evaluation, and stopping decisions.
+The work shows technical judgment through explicit architecture, data, optimization, evaluation, and stopping decisions.
 
-It demonstrates controlled experimentation through shared budgets, fixed evaluation streams, sealed test use, deterministic resume checks, and precommitted selection rules.
+It shows controlled experimentation through shared budgets, fixed evaluation streams, sealed test use, deterministic resume checks, and precommitted selection rules.
 
-It also demonstrates traceable evidence. The repository connects each major claim to decisions, metrics, figures, tests, and provenance records.
+It also shows traceable evidence. The repository connects each major claim to decisions, metrics, figures, tests, and provenance records.
 
 A controlled learning-rate probe changed the provisional choice from 3e-4 to 2e-3. Evidence changed the implementation before the primary runs.
 

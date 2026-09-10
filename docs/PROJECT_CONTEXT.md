@@ -140,7 +140,7 @@ Validation:
 | Best validation loss | **3.972054** | **3.776427** | **3.684501** |
 | Best validation PPL | **53.09** | **43.66** | **39.83** |
 | Wall time | 11.78 min | 23.55 min | 42.22 min |
-| Peak GPU memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
+| Peak memory | 4.94 GiB | 7.29 GiB | 10.62 GiB |
 
 ## Frozen Notebook 05 evaluation and scaling results
 Official test over **293,376 scored targets/model**:
@@ -220,7 +220,7 @@ The same three validation-derived prompts, seeds 43/44/45, temperature 0.8, top-
 
 Interpretation:
 - prompts 1 and 2 showed better topical continuity / less repetition than frozen Model C, especially the geology prompt;
-- prompt 3 remained strongly hallucinatory and fabricated biographical/achievement details;
+- prompt 3 remained strongly hallucinatory and invented biographical/achievement details;
 - conclusion: **undertraining contributed to some original qualitative drift, but more training did not make the model reliably factual.**
 
 ### Final evidence
@@ -247,16 +247,16 @@ External checkpoints (not committed by design):
 
 ## Final project conclusions
 1. **Capacity helps within the tested range:** A→B→C improved validation and test likelihood under the equal-budget protocol. These three sizes do not support numerical extrapolation to larger models.
-2. **Marginal efficiency declines:** B→C delivered much less quality gain per added parameter/time/memory than A→B.
+2. **Marginal efficiency declines:** validation-loss gain per approximate parameter doubling decreased from **0.164 nats** for A→B to **0.093 nats** for B→C.
 3. **Budget can confound capacity with duration:** 06A showed the largest model was still undertrained at the original three-epoch cutoff.
-4. **Additional training eventually saturated:** extended C improved materially, then reached the precommitted noisy-plateau stopping criterion.
+4. **More training eventually reached saturation:** extended C improved materially, then reached the precommitted noisy-plateau stopping criterion.
 5. **Likelihood is not the same as sample quality or factuality:** extra training improved some topical stability but did not eliminate hallucination.
 6. **Governance/provenance mattered:** fail-closed gates exposed an actual evidence-retention gap, exact resume was behaviorally verified, the test split stayed sealed until selection froze, and the 06A test was scored once only.
 
 ## Presentation handoff
 
 Writing preference: do not use em dashes in project documents or responses. Use ordinary hyphens or other suitable punctuation.
-The presentation/report should now be built from frozen evidence, not from additional experiments. The central narrative is:
+The presentation and report must now use frozen evidence, not more experiments. The central narrative is:
 
 **Controlled scale improved predictive quality, but with declining marginal efficiency. The largest model was also duration constrained under the equal-budget experiment, and a separately governed continuation showed additional held-out gains before saturation. Better likelihood did not automatically produce factual or uniformly better generated language.**
 
