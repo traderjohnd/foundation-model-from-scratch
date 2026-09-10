@@ -40,6 +40,8 @@ The second finding was that all three models still improved at the end of the bu
 
 The third finding was that the model with the best perplexity did not produce the best text in every fixed generation probe.
 
+The fixed probes showed repetition, topic drift, invented entities, and factual errors. Extended Model C still invented biographical and achievement details.
+
 These results show a local pattern, not a law for larger models. Language-model loss often follows a power law instead of a linear relationship.
 
 The rate depends on model size, data, compute, optimization, and architecture. Extrapolation needs more sizes, multiple seeds, and balanced budgets.
